@@ -45,7 +45,7 @@ export default function App() {
         })}
       >
         <Tab.Screen name="Home" component={Screen02} />
-        <Tab.Screen name="Search" component={Screen08} />
+        <Tab.Screen name="Search" component={Screen07} />
         <Tab.Screen name="Favorite" component={Screen09} />
         <Tab.Screen name="Inbox" component={Screen10} />
         <Tab.Screen name="Account" component={Screen05} />

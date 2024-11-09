@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-import { Icon, Rating } from "react-native-elements";
+import { Icon, Rating, AirbnbRating } from "react-native-elements";
 import COLORS from "../components/colors";
 import { useState, useEffect } from "react";
 import { app } from "../config/firebaseConfig";
@@ -21,20 +21,26 @@ import { collection, getDocs, getFirestore } from "firebase/firestore";
 export default function Screen02() {
   const db = getFirestore(app);
   const [products, setProducts] = useState([]);
-
-
-  const getProduct = async () => {
-    const querySnapshot = await getDocs(collection(db, "Product"));
-    const data = querySnapshot.docs.map((doc) => {
-      setProducts((products) => [...products, doc.data()]);
-    });
-  };
   useEffect(() => {
     getProduct();
   }, []);
+  const getProduct = async () => {
+    const querySnapshot = await getDocs(collection(db, "Product"));
+    const data = querySnapshot.docs
+      .map((doc) => doc.data())
+      .filter((product) => product.category === "Electronics"); // Lọc sản phẩm có category là Electronics
+    setProducts(data); // Cập nhật sản phẩm vào state
+  };
+
+  const [cart, setCart] = useState([]);
+  // Hàm thêm sản phẩm vào giỏ hàng
+  const addToCart = (product) => {
+    setCart((prevCart) => [...prevCart, product]);
+    navigation.navigate("Screen07", { cartItems: [...cart, product] }); // Điều hướng tới Screen07 với dữ liệu giỏ hàng
+  };
 
   const renderListRow = ({ item }) => (
-    <View
+    <TouchableOpacity
       style={{
         borderRadius: 5,
         borderColor: COLORS.gray,
@@ -52,18 +58,23 @@ export default function Screen02() {
           style={{ width: 50, height: 50, marginHorizontal: 10 }}
         />
 
-        <View>
+        <View style={{ flex: 1, alignItems: "flex-start" }}>
           <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
             {item.name}
           </Text>
           <Rating imageSize={13} />
         </View>
       </View>
-      <View style={{ marginRight: 10, alignItems: "center" }}>
-        <Icon name="add-circle-outline" size={24} color="green" />
-        <Text style={{ fontWeight: "bold" }}>${item.price}</Text>
+      <View style={{ width: 70 }}>
+        <TouchableOpacity onPress={() => addToCart(item)}>
+          <Icon name="add-circle-outline" size={24} color="green" />
+        </TouchableOpacity>
+
+        <Text style={{ fontWeight: "bold", textAlign: "center" }}>
+          ${item.price}
+        </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -159,11 +170,7 @@ export default function Screen02() {
           </View>
 
           <View style={{ flex: 1, marginTop: 20 }}>
-            <FlatList
-              data={products}
-              renderItem={renderListRow}
-             
-            />
+            <FlatList data={products} renderItem={renderListRow} />
           </View>
           <TouchableOpacity style={styles.btnSeeAll}>
             <Text style={styles.textSeeAll}>See all</Text>
