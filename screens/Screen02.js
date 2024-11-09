@@ -15,7 +15,6 @@ import { Icon, Rating, AirbnbRating } from "react-native-elements";
 import COLORS from "../components/colors";
 import { useState, useEffect } from "react";
 import { app } from "../config/firebaseConfig";
-
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 
 export default function Screen02() {
@@ -29,7 +28,7 @@ export default function Screen02() {
     const data = querySnapshot.docs
       .map((doc) => doc.data())
       .filter((product) => product.category === "Electronics"); // Lọc sản phẩm có category là Electronics
-    setProducts(data); // Cập nhật sản phẩm vào state
+    setProducts(data);
   };
 
   const [cart, setCart] = useState([]);
@@ -193,7 +192,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   header: {
-    flexDirection: "column",
     paddingVertical: 10,
     marginHorizontal: 15,
   },

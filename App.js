@@ -44,10 +44,10 @@ export default function App() {
           headerShown: false,
         })}
       >
-        <Tab.Screen name="Home" component={Screen02} />
-        <Tab.Screen name="Search" component={Screen07} />
-        <Tab.Screen name="Favorite" component={Screen09} />
-        <Tab.Screen name="Inbox" component={Screen10} />
+        <Tab.Screen name="Home" component={Screen01} />
+        <Tab.Screen name="Search" component={Screen02} />
+        <Tab.Screen name="Favorite" component={Screen03} />
+        <Tab.Screen name="Inbox" component={Screen04} />
         <Tab.Screen name="Account" component={Screen05} />
       </Tab.Navigator>
     </NavigationContainer>

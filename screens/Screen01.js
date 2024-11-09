@@ -8,14 +8,30 @@ import {
   ScrollView,
   TextInput,
   ImageBackground,
-} from 'react-native';
-import { Icon } from 'react-native-elements';
+} from "react-native";
+import { Icon } from "react-native-elements";
+import { app } from "../config/firebaseConfig";
+import COLORS from "../components/colors";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
+import { useEffect, useState } from "react";
 
 export default function Screen01() {
+  const db = getFirestore(app);
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    getCategory();
+  }, []);
+  const getCategory = async () => {
+    const querySnapshot = await getDocs(collection(db, "Category"));
+    const data = querySnapshot.docs.map((doc) => doc.data());
+    setCategories(data);
+    console.log(data);
+    
+  };
   const generateColor = () => {
     const CHHAPOLA = Math.floor(Math.random() * 16777215)
       .toString(16)
-      .padStart(6, '0');
+      .padStart(6, "0");
     return `#${CHHAPOLA}`;
   };
   return (
@@ -32,37 +48,36 @@ export default function Screen01() {
           <View style={styles.itemRight}>
             <Icon name="cart-outline" type="ionicon" size={20} color="gray" />
             <Image
-              source={require('../assets/imgs/avata.png')}
+              source={require("../assets/imgs/avata.png")}
               style={{ marginLeft: 10 }}
             />
           </View>
         </View>
       </View>
-
+      <View style={styles.searchAndFilter}>
+        <View style={styles.search}>
+          <Icon style={styles.iconSize} name="search" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for product"
+            placeholderTextColor="#BCC1CA"
+          />
+        </View>
+        <View style={styles.filter}>
+          <Icon style={styles.iconSize} name="filter-list" />
+        </View>
+      </View>
       <View style={styles.body}>
         <ScrollView style={{ flex: 1 }} showsHorizontalScrollIndicator={false}>
-          <View style={styles.searchAndFilter}>
-            <View style={styles.search}>
-              <Icon style={styles.iconSize} name="search" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search for product"
-                placeholderTextColor="#BCC1CA"
-              />
-            </View>
-            <View style={styles.filter}>
-              <Icon style={styles.iconSize} name="filter-list" />
-            </View>
-          </View>
-
           <View style={styles.categories}>
             <Pressable style={styles.category}>
               <View
                 style={[
                   styles.imageCategory,
                   { backgroundColor: generateColor() },
-                ]}>
-                <Image source={require('../assets/imgs/beauty.png')} />
+                ]}
+              >
+                <Image source={require("../assets/imgs/beauty.png")} />
               </View>
               <Text style={styles.textCategory}> Electronics</Text>
             </Pressable>
@@ -72,8 +87,9 @@ export default function Screen01() {
                 style={[
                   styles.imageCategory,
                   { backgroundColor: generateColor() },
-                ]}>
-                <Image source={require('../assets/imgs/beauty.png')} />
+                ]}
+              >
+                <Image source={require("../assets/imgs/beauty.png")} />
               </View>
               <Text style={styles.textCategory}> Electronics</Text>
             </Pressable>
@@ -83,8 +99,9 @@ export default function Screen01() {
                 style={[
                   styles.imageCategory,
                   { backgroundColor: generateColor() },
-                ]}>
-                <Image source={require('../assets/imgs/beauty.png')} />
+                ]}
+              >
+                <Image source={require("../assets/imgs/beauty.png")} />
               </View>
               <Text style={styles.textCategory}> Electronics</Text>
             </Pressable>
@@ -100,14 +117,15 @@ export default function Screen01() {
               </Pressable>
             </View>
 
-            <Image source={require('../assets/imgs/bannerHome.png')} />
+            <Image source={require("../assets/imgs/bannerHome.png")} />
           </View>
 
           <View style={styles.topProduct}>
             <Pressable style={styles.eachTopProduct}>
               <ImageBackground
                 style={styles.imageEachTopProduct}
-                source={require('../assets/imgs/sale.png')}>
+                source={require("../assets/imgs/sale.png")}
+              >
                 <Text style={styles.textDiscountEachtopProduct}>30%</Text>
               </ImageBackground>
             </Pressable>
@@ -115,7 +133,8 @@ export default function Screen01() {
             <Pressable style={styles.eachTopProduct}>
               <ImageBackground
                 style={styles.imageEachTopProduct}
-                source={require('../assets/imgs/sale.png')}>
+                source={require("../assets/imgs/sale.png")}
+              >
                 <Text style={styles.textDiscountEachtopProduct}>30%</Text>
               </ImageBackground>
             </Pressable>
@@ -128,16 +147,17 @@ export default function Screen01() {
 
           <View style={styles.recommend}>
             <View style={styles.recommendProduct}>
-              <Image source={require('../assets/imgs/shoesRcm.png')} />
+              <Image source={require("../assets/imgs/shoesRcm.png")} />
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-around',
-                  width: '100%',
-                }}>
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: "100%",
+                }}
+              >
                 <View>
                   <Text style={styles.textName}>Shoes</Text>
-                  <View style={{ flexDirection: 'row' }}>
+                  <View style={{ flexDirection: "row" }}>
                     <Icon name="star" size={20} color="#F3C63F" />
                     <Text style={styles.textRating}>&nbsp; 4.5</Text>
                   </View>
@@ -147,16 +167,17 @@ export default function Screen01() {
               </View>
             </View>
             <View style={styles.recommendProduct}>
-              <Image source={require('../assets/imgs/shoesRcm.png')} />
+              <Image source={require("../assets/imgs/shoesRcm.png")} />
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-around',
-                  width: '100%',
-                }}>
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: "100%",
+                }}
+              >
                 <View>
                   <Text style={styles.textName}>Shoes</Text>
-                  <View style={{ flexDirection: 'row' }}>
+                  <View style={{ flexDirection: "row" }}>
                     <Icon name="star" size={20} color="#F3C63F" />
                     <Text style={styles.textRating}>&nbsp; 4.5</Text>
                   </View>
@@ -167,16 +188,17 @@ export default function Screen01() {
             </View>
 
             <View style={styles.recommendProduct}>
-              <Image source={require('../assets/imgs/shoesRcm.png')} />
+              <Image source={require("../assets/imgs/shoesRcm.png")} />
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-around',
-                  width: '100%',
-                }}>
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: "100%",
+                }}
+              >
                 <View>
                   <Text style={styles.textName}>Shoes</Text>
-                  <View style={{ flexDirection: 'row' }}>
+                  <View style={{ flexDirection: "row" }}>
                     <Icon name="star" size={20} color="#F3C63F" />
                     <Text style={styles.textRating}>&nbsp; 4.5</Text>
                   </View>
@@ -188,26 +210,22 @@ export default function Screen01() {
           </View>
         </ScrollView>
       </View>
-
-      
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flex: 1.5,
-  },
+  header: {},
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingTop: 3,
     paddingHorizontal: 10,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
-  itemLeft: { flexDirection: 'row', alignItems: 'center' },
-  itemRight: { flexDirection: 'row', alignItems: 'center' },
-  alldeals: { paddingHorizontal: 10, fontSize: 16, fontWeight: 'bold' },
+  itemLeft: { flexDirection: "row", alignItems: "center" },
+  itemRight: { flexDirection: "row", alignItems: "center" },
+  alldeals: { paddingHorizontal: 10, fontSize: 16, fontWeight: "bold" },
 
   body: { flex: 10 },
 
@@ -216,61 +234,61 @@ const styles = StyleSheet.create({
     height: 25,
   },
   searchAndFilter: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 20,
+    flexDirection: "row",
+    marginHorizontal: 15,
+    marginVertical: 10,
   },
   search: {
-    flex: 8,
-    flexDirection: 'row',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 6,
-    paddingVertical: 10,
+    flexDirection: "row",
+    backgroundColor: COLORS.gray,
+    alignItems: "center",
+    paddingVertical: 5,
+    flex: 1,
+    paddingHorizontal: 10,
+    borderRadius: 10,
   },
   searchInput: {
     fontSize: 20,
-    paddingHorizontal: 8,
   },
   filter: {
-    flex: 1,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 20,
+    marginLeft: 10,
+    backgroundColor: COLORS.gray,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    borderRadius: 10,
   },
   categories: {
     padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
   category: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   textCategory: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
   },
   imageCategory: {
-    borderRadius: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: "100%",
+    alignItems: "center",
+    justifyContent: "center",
     width: 85,
     height: 85,
-    resizeMode: 'cover',
+    resizeMode: "cover",
     marginHorizontal: 8,
   },
   banner: {
-    backgroundColor: '#F3FCF0',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: "#F3FCF0",
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 20,
   },
   leftBanner: {
     paddingHorizontal: 20,
   },
   text1Banner: {
-    color: '#FF6026',
+    color: "#FF6026",
     fontSize: 36,
   },
   text2Banner: {
@@ -278,21 +296,21 @@ const styles = StyleSheet.create({
   },
   buttonBanner: {
     marginTop: 20,
-    backgroundColor: 'black',
+    backgroundColor: "black",
     borderRadius: 6,
-    alignItems: 'center',
-    shadowColor: '#171717',
+    alignItems: "center",
+    shadowColor: "#171717",
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
     padding: 8,
   },
   textButtonBanner: {
-    color: 'white',
+    color: "white",
   },
   recommend: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
   },
   text1Recommned: {
@@ -300,39 +318,38 @@ const styles = StyleSheet.create({
   },
   text2Recommend: {
     fontSize: 17,
-    color: 'darkgrey',
+    color: "darkgrey",
   },
   recommendProduct: {
     height: 200,
     width: 130,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: "#F8F9FA",
     borderRadius: 6,
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 20,
     marginHorizontal: 6,
   },
   textName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
   },
   textPrice: {
     fontSize: 18,
-    color: '#FF6026',
+    color: "#FF6026",
     marginTop: 35,
   },
 
-  
   container: {
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 24,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     flex: 1,
   },
   topProduct: {
     padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     // backgroundColor:'pink',
   },
   eachTopProduct: {
@@ -342,18 +359,18 @@ const styles = StyleSheet.create({
   imageEachTopProduct: {
     width: null,
     height: 150,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   textDiscountEachtopProduct: {
     marginTop: 10,
     marginLeft: 2,
-    backgroundColor: '#EB235F',
+    backgroundColor: "#EB235F",
     paddingVertical: 10,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     height: 30,
     width: 50,
-    color: 'white',
-    textAlign: 'center',
+    color: "white",
+    textAlign: "center",
     borderTopRightRadius: 12,
     borderBottomRightRadius: 12,
   },
