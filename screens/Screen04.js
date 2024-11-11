@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -10,10 +10,10 @@ import {
   TextInput,
   ImageBackground,
   CheckBox,
-} from 'react-native';
-import { Icon, Rating } from 'react-native-elements';
+} from "react-native";
+import { Icon, Rating } from "react-native-elements";
 
-export default function Screen01() {
+export default function Screen04({ navigation }) {
   const [isSelected, setSelection] = useState(false);
   const [rating, setRating] = useState(0);
   const [expandedSO, setExpandedSO] = useState(true);
@@ -32,7 +32,7 @@ export default function Screen01() {
                 name="close-outline"
                 type="ionicon"
                 color="darkgray"
-                onPress={() => console.log('hello')}
+                onPress={() => console.log("hello")}
               />
             </View>
             <View style={styles.hr} />
@@ -43,7 +43,7 @@ export default function Screen01() {
             <View style={styles.eachRowExpandLess}>
               <Text style={styles.textEachExpandLess}>Shipping options</Text>
               <Icon
-                name={expandedSO ? 'expand-less' : 'expand-more'}
+                name={expandedSO ? "expand-less" : "expand-more"}
                 type="material"
                 color="darkgray"
                 size={30}
@@ -75,8 +75,8 @@ export default function Screen01() {
                 </View>
               </View>
             )}
-            <View style={{ alignItems: 'center' }}>
-              <View style={[styles.hr, { width: '90%' }]} />
+            <View style={{ alignItems: "center" }}>
+              <View style={[styles.hr, { width: "90%" }]} />
             </View>
           </View>
 
@@ -85,7 +85,7 @@ export default function Screen01() {
             <View style={styles.eachRowExpandLess}>
               <Text style={styles.textEachExpandLess}>Price range ($)</Text>
               <Icon
-                name={expandedPR ? 'expand-less' : 'expand-more'}
+                name={expandedPR ? "expand-less" : "expand-more"}
                 type="material"
                 color="darkgray"
                 size={30}
@@ -108,8 +108,8 @@ export default function Screen01() {
                 </View>
               </View>
             )}
-            <View style={{ alignItems: 'center' }}>
-              <View style={[styles.hr, { width: '90%' }]} />
+            <View style={{ alignItems: "center" }}>
+              <View style={[styles.hr, { width: "90%" }]} />
             </View>
           </View>
 
@@ -118,7 +118,7 @@ export default function Screen01() {
             <View style={styles.eachRowExpandLess}>
               <Text style={styles.textEachExpandLess}>Average review</Text>
               <Icon
-                name={expandedAR ? 'expand-less' : 'expand-more'}
+                name={expandedAR ? "expand-less" : "expand-more"}
                 type="material"
                 color="darkgray"
                 size={30}
@@ -135,13 +135,13 @@ export default function Screen01() {
                   ratingCount={5}
                   imageSize={30}
                   onFinishRating={this.ratingCompleted}
-                  style={{ paddingVertical: 10, width: '90%' }}
+                  style={{ paddingVertical: 10, width: "90%" }}
                 />
               </View>
             )}
 
-            <View style={{ alignItems: 'center' }}>
-              <View style={[styles.hr, { width: '90%' }]} />
+            <View style={{ alignItems: "center" }}>
+              <View style={[styles.hr, { width: "90%" }]} />
             </View>
           </View>
           {/*Others */}
@@ -149,7 +149,7 @@ export default function Screen01() {
             <View style={styles.eachRowExpandLess}>
               <Text style={styles.textEachExpandLess}>Others</Text>
               <Icon
-                name={expandedO ? 'expand-less' : 'expand-more'}
+                name={expandedO ? "expand-less" : "expand-more"}
                 type="material"
                 color="darkgray"
                 size={30}
@@ -199,8 +199,8 @@ export default function Screen01() {
               </View>
             )}
 
-            <View style={{ alignItems: 'center' }}>
-              <View style={[styles.hr, { width: '90%' }]} />
+            <View style={{ alignItems: "center" }}>
+              <View style={[styles.hr, { width: "90%" }]} />
             </View>
           </View>
         </ScrollView>
@@ -212,58 +212,58 @@ export default function Screen01() {
 const styles = StyleSheet.create({
   eachOtherRow: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 11,
     marginBottom: 15,
   },
   eachOther: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#9095A0',
+    borderColor: "#9095A0",
     borderRadius: 6,
     paddingHorizontal: 15,
     paddingVertical: 10,
     marginHorizontal: 10,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   eachOtherText: {
-    textAlign: 'center',
-    color: '#9095A0',
+    textAlign: "center",
+    color: "#9095A0",
   },
   container: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     flex: 1,
   },
-  hr: { height: 1, backgroundColor: 'lightgray', marginTop: 10 },
+  hr: { height: 1, backgroundColor: "lightgray", marginTop: 10 },
   titleHeader: {
     paddingHorizontal: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   filterHeader: {
     fontSize: 23,
     fontWeight: 600,
     flex: 1,
-    textAlign: 'center',
-    color: '#171A1F',
+    textAlign: "center",
+    color: "#171A1F",
   },
   eachRowExpandLess: {
     paddingHorizontal: 11,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   textEachExpandLess: {
     paddingVertical: 10,
     fontSize: 20,
     fontWeight: 600,
-    color: '#171A1F',
+    color: "#171A1F",
   },
   eachCheckBox: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 11,
     paddingVertical: 5,
   },
@@ -274,22 +274,22 @@ const styles = StyleSheet.create({
   selectPriceText: {
     paddingBottom: 5,
     fontSize: 18,
-    color: '#FF6026',
+    color: "#FF6026",
     fontWeight: 500,
-    textAlign: 'center',
+    textAlign: "center",
   },
   selectPrice: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingBottomx: 15,
   },
   priceInput: {
     borderWidth: 1,
     width: 80,
-    borderColor: '#FF6026',
+    borderColor: "#FF6026",
     borderRadius: 3,
-    outlineStyle: 'none',
-    textAlign: 'center',
+    outlineStyle: "none",
+    textAlign: "center",
     paddingVertical: 5,
   },
 });

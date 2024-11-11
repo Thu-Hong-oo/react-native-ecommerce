@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Icon, Rating } from "react-native-elements";
 
-export default function Screen08() {
+export default function Screen09({ navigation }) {
   const [checked, setChecked] = React.useState("first");
   return (
     <SafeAreaView style={styles.container}>

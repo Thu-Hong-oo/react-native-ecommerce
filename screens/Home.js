@@ -8,6 +8,8 @@ import {
   ScrollView,
   TextInput,
   ImageBackground,
+  FlatList,
+  TouchableOpacity,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { app } from "../config/firebaseConfig";
@@ -15,18 +17,20 @@ import COLORS from "../components/colors";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
-export default function Screen01() {
+export default function Screen01({ navigation }) {
   const db = getFirestore(app);
   const [categories, setCategories] = useState([]);
+
   useEffect(() => {
     getCategory();
   }, []);
   const getCategory = async () => {
     const querySnapshot = await getDocs(collection(db, "Category"));
-    const data = querySnapshot.docs.map((doc) => doc.data());
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
     setCategories(data);
-    console.log(data);
-    
   };
   const generateColor = () => {
     const CHHAPOLA = Math.floor(Math.random() * 16777215)
@@ -68,45 +72,40 @@ export default function Screen01() {
         </View>
       </View>
       <View style={styles.body}>
-        <ScrollView style={{ flex: 1 }} showsHorizontalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsHorizontalScrollIndicator={false}
+        >
           <View style={styles.categories}>
-            <Pressable style={styles.category}>
-              <View
-                style={[
-                  styles.imageCategory,
-                  { backgroundColor: generateColor() },
-                ]}
-              >
-                <Image source={require("../assets/imgs/beauty.png")} />
-              </View>
-              <Text style={styles.textCategory}> Electronics</Text>
-            </Pressable>
-
-            <Pressable style={styles.category}>
-              <View
-                style={[
-                  styles.imageCategory,
-                  { backgroundColor: generateColor() },
-                ]}
-              >
-                <Image source={require("../assets/imgs/beauty.png")} />
-              </View>
-              <Text style={styles.textCategory}> Electronics</Text>
-            </Pressable>
-
-            <Pressable style={styles.category}>
-              <View
-                style={[
-                  styles.imageCategory,
-                  { backgroundColor: generateColor() },
-                ]}
-              >
-                <Image source={require("../assets/imgs/beauty.png")} />
-              </View>
-              <Text style={styles.textCategory}> Electronics</Text>
-            </Pressable>
+            <FlatList
+              data={categories}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item: category }) => (
+                <TouchableOpacity
+                  style={styles.category}
+                  onPress={() => {
+                    console.log("Navigating to:", category.name);
+                    navigation.navigate(category.name);
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.imageCategory,
+                      { backgroundColor: generateColor() },
+                    ]}
+                  >
+                    <Image
+                      source={{ uri: category.image }}
+                      style={{ width: 50, height: 50 }}
+                    />
+                  </View>
+                  <Text style={styles.textCategory}>{category.name}</Text>
+                </TouchableOpacity>
+              )}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            />
           </View>
-
           <View style={styles.banner}>
             <View style={styles.leftBanner}>
               <Text style={styles.text1Banner}>Shoes</Text>
@@ -130,14 +129,17 @@ export default function Screen01() {
               </ImageBackground>
             </Pressable>
 
-            <Pressable style={styles.eachTopProduct}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Test")}
+              style={styles.eachTopProduct}
+            >
               <ImageBackground
                 style={styles.imageEachTopProduct}
                 source={require("../assets/imgs/sale.png")}
               >
                 <Text style={styles.textDiscountEachtopProduct}>30%</Text>
               </ImageBackground>
-            </Pressable>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.recommend}>

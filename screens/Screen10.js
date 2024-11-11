@@ -14,7 +14,7 @@ import {
 import { Icon, Rating } from "react-native-elements";
 import * as ImagePicker from "expo-image-picker";
 
-export default function Screen08() {
+export default function Screen10({ navigation }) {
   const [checked, setChecked] = React.useState("first");
   const [image, setImage] = useState(null);
 

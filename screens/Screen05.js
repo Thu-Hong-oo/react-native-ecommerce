@@ -10,44 +10,44 @@ import {
   FlatList,
   TouchableOpacity,
   Button,
-} from 'react-native';
-import { Icon, Rating , Switch} from 'react-native-elements';
-import COLORS from '../components/colors';
-import { useState } from 'react';
-import ProductRating from '../components/productRating';
+} from "react-native";
+import { Icon, Rating, Switch } from "react-native-elements";
+import COLORS from "../components/colors";
+import { useState } from "react";
+import ProductRating from "../components/productRating";
 
-export default function Screen05() {
-    const [isEnabled, setIsEnabled] = useState(false); // Trạng thái của Switch
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+export default function Screen05({ navigation }) {
+  const [isEnabled, setIsEnabled] = useState(false); // Trạng thái của Switch
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   const [data, setData] = useState([
     {
-      name: 'Headphone',
-      img: require('../assets/imgs/headphone.png'),
+      name: "Headphone",
+      img: require("../assets/imgs/headphone.png"),
       price: 99,
       rating: 4.5,
     },
     {
-      name: 'Headphone',
-      img: require('../assets/imgs/headphone2.png'),
+      name: "Headphone",
+      img: require("../assets/imgs/headphone2.png"),
       price: 99,
       rating: 4.9,
     },
     {
-      name: 'Headphone',
-      img: require('../assets/imgs/headphone.png'),
+      name: "Headphone",
+      img: require("../assets/imgs/headphone.png"),
       price: 99,
       rating: 4.5,
     },
     {
-      name: 'Headphone',
-      img: require('../assets/imgs/headphone.png'),
+      name: "Headphone",
+      img: require("../assets/imgs/headphone.png"),
       price: 99,
       rating: 4.5,
     },
     {
-      name: 'Headphone',
-      img: require('../assets/imgs/headphone.png'),
+      name: "Headphone",
+      img: require("../assets/imgs/headphone.png"),
       price: 99,
       rating: 4.5,
     },
@@ -60,40 +60,48 @@ export default function Screen05() {
         margin: 10,
         flex: 1,
         backgroundColor: COLORS.gray,
-        borderRadius:10,
-      }}>
+        borderRadius: 10,
+      }}
+    >
       <View
         style={{
           backgroundColor: COLORS.gray,
-          width: '100%',
+          width: "100%",
           height: 120,
           borderRadius: 10,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Image source={item.img} style={{ width: 120, height: 120 }} />
       </View>
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginTop: 8,
           marginHorizontal: 10,
-        }}>
-        <Text style={{ fontWeight: 'bold' }}>{item.name}</Text>
+        }}
+      >
+        <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
       </View>
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginTop: 5,
           marginHorizontal: 10,
-        }}>
-        <View style ={{flexDirection:"row"}}> <Icon name = "star" color = {COLORS.yellow} size={20}/> <Text>{item.rating}</Text></View>
-        
-        <Text style={{ fontWeight: 'bold' }}>${item.price}</Text>
+        }}
+      >
+        <View style={{ flexDirection: "row" }}>
+          {" "}
+          <Icon name="star" color={COLORS.yellow} size={20} />{" "}
+          <Text>{item.rating}</Text>
+        </View>
+
+        <Text style={{ fontWeight: "bold" }}>${item.price}</Text>
       </View>
     </View>
   );
@@ -111,7 +119,7 @@ export default function Screen05() {
           <View style={styles.itemRight}>
             <Icon name="cart-outline" type="ionicon" size={20} color="gray" />
             <Image
-              source={require('../assets/imgs/avata.png')}
+              source={require("../assets/imgs/avata.png")}
               style={{ marginLeft: 10 }}
             />
           </View>
@@ -122,15 +130,15 @@ export default function Screen05() {
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.banner}>
             <Image
-              source={require('../assets/imgs/bannerHeadphone.png')}
-              style={{ resizeMode: 'stretch', width: null }}
+              source={require("../assets/imgs/bannerHeadphone.png")}
+              style={{ resizeMode: "stretch", width: null }}
             />
           </View>
           <View style={styles.row}>
-            <Text style={{ fontWeight: 'bold', fontSize: 20 }}>$59</Text>
+            <Text style={{ fontWeight: "bold", fontSize: 20 }}>$59</Text>
             <View style={styles.row}>
               <Icon name="star" color="#F3C63F" />
-              <Text style={{ fontWeight: 'bold' }}>4.5</Text>
+              <Text style={{ fontWeight: "bold" }}>4.5</Text>
               <Text>(99 reviews)</Text>
             </View>
           </View>
@@ -142,13 +150,15 @@ export default function Screen05() {
             </Text>
 
             <View
-              style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 20 }}>
+              style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 20 }}
+            >
               <View
                 style={{
-                  flexDirection: 'row',
-                  width: '50%',
+                  flexDirection: "row",
+                  width: "50%",
                   marginBottom: 20,
-                }}>
+                }}
+              >
                 <Icon
                   name="truck-outline"
                   type="material-community"
@@ -157,7 +167,7 @@ export default function Screen05() {
                 />
                 <Text style={styles.grayText}>Express</Text>
               </View>
-              <View style={{ flexDirection: 'row', width: '50%' }}>
+              <View style={{ flexDirection: "row", width: "50%" }}>
                 <Icon
                   name="back"
                   type="antdesign"
@@ -166,11 +176,11 @@ export default function Screen05() {
                 />
                 <Text style={styles.grayText}>30-day free return</Text>
               </View>
-              <View style={{ flexDirection: 'row', width: '50%' }}>
+              <View style={{ flexDirection: "row", width: "50%" }}>
                 <Icon name="star" color={COLORS.orange} size={20} />
                 <Text style={styles.grayText}>Good review</Text>
               </View>
-              <View style={{ flexDirection: 'row', width: '50%' }}>
+              <View style={{ flexDirection: "row", width: "50%" }}>
                 <Icon
                   name="award"
                   type="feather"
@@ -187,7 +197,7 @@ export default function Screen05() {
           <View style={styles.relevantProduct}>
             <View style={styles.row}>
               <Text style={styles.boldText}>Categories</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Text>See all</Text>
                 <Icon
                   name="triangle-right"
@@ -207,10 +217,19 @@ export default function Screen05() {
             </View>
           </View>
 
-          <View style = {styles.notify}>
-          <Icon name = "bell" type ="fontisto" color = "white" style  ={{backgroundColor:COLORS.orange,padding:10, borderRadius:5 }}/>
-          <Text>Notify me of promotions</Text>
-          <Switch onValueChange={toggleSwitch} value={isEnabled}/>
+          <View style={styles.notify}>
+            <Icon
+              name="bell"
+              type="fontisto"
+              color="white"
+              style={{
+                backgroundColor: COLORS.orange,
+                padding: 10,
+                borderRadius: 5,
+              }}
+            />
+            <Text>Notify me of promotions</Text>
+            <Switch onValueChange={toggleSwitch} value={isEnabled} />
           </View>
         </ScrollView>
       </View>
@@ -230,30 +249,30 @@ export default function Screen05() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   header: {
-    flexDirection: 'column',
+    flexDirection: "column",
     paddingVertical: 10,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginHorizontal: 15,
   },
   itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   itemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   alldeals: {
     paddingHorizontal: 10,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   body: {
@@ -264,47 +283,47 @@ const styles = StyleSheet.create({
   banner: {
     marginVertical: 10,
     borderRadius: 10,
-    backgroundColor: 'green',
+    backgroundColor: "green",
     marginHorizontal: 15,
   },
 
   footer: {
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#f8f8f8',
-    flexDirection: 'row',
+    borderColor: "#ddd",
+    backgroundColor: "#f8f8f8",
+    flexDirection: "row",
     paddingHorizontal: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   btnCart: {
     borderWidth: 1,
     padding: 5,
     borderRadius: 5,
-    borderColor: '#FF6026',
+    borderColor: "#FF6026",
   },
   btnBuyNow: {
-    backgroundColor: '#FF6026',
+    backgroundColor: "#FF6026",
     paddingVertical: 10,
     flex: 1,
     marginLeft: 10,
     borderRadius: 5,
   },
   textBuyNow: {
-    color: 'white',
-    textAlign: 'center',
+    color: "white",
+    textAlign: "center",
   },
   grayText: {
-    color: '#9095A0',
+    color: "#9095A0",
   },
   boldText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 15,
   },
   description: {
     marginVertical: 20,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: "#F3F4F6",
     padding: 15,
   },
   reviews: {
@@ -313,19 +332,18 @@ const styles = StyleSheet.create({
   },
   relevantProduct: {
     borderTopWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: "#F3F4F6",
     paddingVertical: 20,
   },
-  notify:{
-    flexDirection:"row",
-    justifyContent:"space-between",
-    padding:15,
-    borderWidth:1,
+  notify: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 15,
+    borderWidth: 1,
     borderRadius: 5,
     borderColor: COLORS.gray,
-    marginHorizontal:15,
-    marginBottom:20,
-    alignItems:"center"
-    
-  }
+    marginHorizontal: 15,
+    marginBottom: 20,
+    alignItems: "center",
+  },
 });

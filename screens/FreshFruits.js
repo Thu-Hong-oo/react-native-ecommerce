@@ -10,32 +10,32 @@ import {
   FlatList,
   TouchableOpacity,
   Button,
-} from 'react-native';
-import { Icon, Rating } from 'react-native-elements';
-import COLORS from '../components/colors';
-import { useState } from 'react';
+} from "react-native";
+import { Icon, Rating } from "react-native-elements";
+import COLORS from "../components/colors";
+import { useState } from "react";
 
-export default function Screen03() {
+export default function Screen03({ navigation }) {
   const [data, setData] = useState([
     {
-      name: 'Pear',
-      img: require('../assets/imgs/pear.png'),
+      name: "Pear",
+      img: require("../assets/imgs/pear.png"),
       price: 3,
     },
 
     {
-      name: 'Avocado',
-      img: require('../assets/imgs/pear.png'),
+      name: "Avocado",
+      img: require("../assets/imgs/pear.png"),
       price: 4,
     },
     {
-      name: 'Cherry',
-      img: require('../assets/imgs/pear.png'),
+      name: "Cherry",
+      img: require("../assets/imgs/pear.png"),
       price: 10,
     },
     {
-      name: 'Orange',
-      img: require('../assets/imgs/pear.png'),
+      name: "Orange",
+      img: require("../assets/imgs/pear.png"),
       price: 7,
     },
   ]);
@@ -44,35 +44,38 @@ export default function Screen03() {
       <View
         style={{
           backgroundColor: COLORS.gray,
-          width: '100%',
+          width: "100%",
           height: 120,
           borderRadius: 10,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Image source={item.img} style={{ width: 120, height: 120 }} />
       </View>
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginTop: 8,
           marginHorizontal: 10,
-        }}>
-        <Text style={{ fontWeight: 'bold' }}>{item.name}</Text>
+        }}
+      >
+        <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
         <Icon name="add-circle-outline" size={24} color="gray" />
       </View>
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginTop: 5,
           marginHorizontal: 10,
-        }}>
+        }}
+      >
         <Rating imageSize={13} />
-        <Text style={{ fontWeight: 'bold' }}>${item.price}</Text>
+        <Text style={{ fontWeight: "bold" }}>${item.price}</Text>
       </View>
     </View>
   );
@@ -85,24 +88,27 @@ export default function Screen03() {
         borderWidth: 1,
         marginBottom: 10,
         paddingVertical: 10,
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        alignItems:"center"
-      }}>
-      <View style={{ flexDirection: 'row' }}>
+        justifyContent: "space-between",
+        flexDirection: "row",
+        alignItems: "center",
+      }}
+    >
+      <View style={{ flexDirection: "row" }}>
         <Image
           source={item.img}
           style={{ width: 50, height: 50, marginHorizontal: 10 }}
         />
 
         <View>
-          <Text style={{ fontWeight: 'bold' , marginBottom:10}}>{item.name}</Text>
+          <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+            {item.name}
+          </Text>
           <Rating imageSize={13} />
         </View>
       </View>
-      <View style = {{marginRight:10, alignItems:"center"}}>
+      <View style={{ marginRight: 10, alignItems: "center" }}>
         <Icon name="add-circle-outline" size={24} color="gray" />
-        <Text style={{ fontWeight: 'bold' }}>${item.price}</Text>
+        <Text style={{ fontWeight: "bold" }}>${item.price}</Text>
       </View>
     </View>
   );
@@ -112,7 +118,7 @@ export default function Screen03() {
       <View style={styles.header}>
         <View style={styles.row}>
           <View style={styles.itemLeft}>
-            <Pressable>
+            <Pressable onPress={() => navigation.goBack()}>
               <Icon name="left" type="antdesign" size={20} color="gray" />
             </Pressable>
             <Text style={styles.alldeals}>All Deals</Text>
@@ -121,7 +127,7 @@ export default function Screen03() {
           <View style={styles.itemRight}>
             <Icon name="cart-outline" type="ionicon" size={20} color="gray" />
             <Image
-              source={require('../assets/imgs/avata.png')}
+              source={require("../assets/imgs/avata.png")}
               style={{ marginLeft: 10 }}
             />
           </View>
@@ -133,7 +139,8 @@ export default function Screen03() {
           <TextInput
             placeholder="Search"
             placeholderTextColor="gray"
-            style={{ paddingVertical: 3, width: '100%' }}></TextInput>
+            style={{ paddingVertical: 3, width: "100%" }}
+          ></TextInput>
         </View>
         <Pressable style={styles.buttonList}>
           <Icon name="filter-list" size={20} color="gray" />
@@ -143,8 +150,8 @@ export default function Screen03() {
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.banner}>
             <Image
-              source={require('../assets/imgs/banner.png')}
-              style={{ width: null, resizeMode: 'cover' }}
+              source={require("../assets/imgs/banner.png")}
+              style={{ width: null, resizeMode: "cover" }}
             />
           </View>
           <View style={styles.listCol2}>
@@ -157,69 +164,68 @@ export default function Screen03() {
 
           <View style={styles.listRow}>
             <View style={styles.row}>
-              <Text style={{ fontWeight: 'bold' }}>Relavant Products</Text>
+              <Text style={{ fontWeight: "bold" }}>Relavant Products</Text>
 
               <Pressable
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  flexDirection: "row",
+                  alignItems: "center",
                   marginRight: 20,
-                }}>
+                }}
+              >
                 <Text style={styles.grayText}>See all</Text>
                 <Icon name="right" type="antdesign" size={12} color="gray" />
               </Pressable>
             </View>
 
-            <View style={{ flex: 1 , marginTop:20}}>
+            <View style={{ flex: 1, marginTop: 20 }}>
               <FlatList data={data} renderItem={renderListRow} />
             </View>
           </View>
         </ScrollView>
       </View>
-
-   
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  grayText: { color: 'gray' },
+  grayText: { color: "gray" },
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   header: {
-    flexDirection: 'column',
+    flexDirection: "column",
     paddingVertical: 10,
     marginHorizontal: 15,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   itemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   alldeals: {
     paddingHorizontal: 10,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   viewSearch: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginHorizontal: 15,
     marginVertical: 10,
   },
   inputSearch: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: COLORS.gray,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 5,
     flex: 1,
     paddingHorizontal: 10,
@@ -228,7 +234,7 @@ const styles = StyleSheet.create({
   buttonList: {
     marginLeft: 10,
     backgroundColor: COLORS.gray,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 10,
     borderRadius: 10,
   },
@@ -238,7 +244,7 @@ const styles = StyleSheet.create({
   },
   banner: {
     height: 100,
-    width: '100%',
+    width: "100%",
     paddingHorizontal: 15,
   },
 
@@ -254,13 +260,12 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   textSeeAll: {
-    color: 'gray',
-    textAlign: 'center',
+    color: "gray",
+    textAlign: "center",
   },
 
   listRow: {
     marginTop: 10,
     marginHorizontal: 15,
   },
-
 });

@@ -11,8 +11,7 @@ import {
 import { FontAwesome } from "@expo/vector-icons";
 import { Icon } from "react-native-elements";
 import COLORS from "../components/colors";
-export default function App() {
-
+export default function Screen07({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Header */}

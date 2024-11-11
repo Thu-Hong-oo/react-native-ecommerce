@@ -13,7 +13,7 @@ import {
 import { Icon } from "react-native-elements";
 import { RadioButton } from "react-native-paper";
 
-export default function Screen08() {
+export default function Screen08({ navigation }) {
   const [checked, setChecked] = React.useState("first");
   return (
     <SafeAreaView style={styles.container}>

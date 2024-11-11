@@ -17,12 +17,14 @@ import { useState, useEffect } from "react";
 import { app } from "../config/firebaseConfig";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 
-export default function Screen02() {
+export default function Screen02({ navigation }) {
   const db = getFirestore(app);
   const [products, setProducts] = useState([]);
+
   useEffect(() => {
     getProduct();
   }, []);
+
   const getProduct = async () => {
     const querySnapshot = await getDocs(collection(db, "Product"));
     const data = querySnapshot.docs
@@ -81,7 +83,7 @@ export default function Screen02() {
       <View style={styles.header}>
         <View style={styles.row}>
           <View style={styles.itemLeft}>
-            <Pressable>
+            <Pressable onPress={() => navigation.goBack()}>
               <Icon name="left" type="antdesign" size={20} color="gray" />
             </Pressable>
             <Text style={styles.alldeals}>Electronics</Text>
@@ -109,8 +111,12 @@ export default function Screen02() {
           <Icon name="filter-list" size={20} color="gray" />
         </Pressable>
       </View>
-      <View style={{ flex: 10 }}>
-        <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
+      <View style={{ flex: 1 }}>
+        <ScrollView
+          style={styles.body}
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.viewCategory}>
             <View style={styles.row}>
               <Text style={styles.title}>Categories</Text>
@@ -126,6 +132,7 @@ export default function Screen02() {
             </View>
             <View style={styles.btnCategory}>
               <TouchableOpacity
+                onPress={() => navigation.navigate("Home")}
                 style={{
                   backgroundColor: "#C3EFB9",
                   borderRadius: 10,
@@ -167,9 +174,12 @@ export default function Screen02() {
               <Text>Popular</Text>
             </TouchableOpacity>
           </View>
-
           <View style={{ flex: 1, marginTop: 20 }}>
-            <FlatList data={products} renderItem={renderListRow} />
+            <FlatList
+              data={products}
+              renderItem={renderListRow}
+              scrollEnabled={false}
+            />
           </View>
           <TouchableOpacity style={styles.btnSeeAll}>
             <Text style={styles.textSeeAll}>See all</Text>
