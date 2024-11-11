@@ -5,8 +5,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "./components/colors";
 import Home from "./screens/Home";
-import Electronics from "./screens/Electronics";
-import FreshFruits from "./screens/FreshFruits";
+import Screen01 from "./screens/Screen01";
+import Screen02 from "./screens/Screen02";
 import Screen04 from "./screens/Screen04";
 import Screen05 from "./screens/Screen05";
 import Screen06 from "./screens/Screen06";
@@ -14,7 +14,7 @@ import Screen07 from "./screens/Screen07";
 import Screen08 from "./screens/Screen08";
 import Screen09 from "./screens/Screen09";
 import Screen10 from "./screens/Screen10";
-import Test from "./screens/Test";
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -46,8 +46,8 @@ function BottomTabs() {
       })}
     >
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Search" component={Electronics} />
-      <Tab.Screen name="Favorite" component={FreshFruits} />
+      <Tab.Screen name="Search" component={Screen01} />
+      <Tab.Screen name="Favorite" component={Screen02} />
       <Tab.Screen name="Inbox" component={Screen04} />
       <Tab.Screen name="Account" component={Screen05} />
     </Tab.Navigator>
@@ -59,10 +59,10 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="MainTabs" component={BottomTabs} />
-        <Stack.Screen name="Test" component={Test} />
+
         <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Electronics" component={Electronics} />
-        <Stack.Screen name="FreshFruits" component={FreshFruits} />
+        <Stack.Screen name="Electronics" component={Screen01} />
+        <Stack.Screen name="FreshFruits" component={Screen02} />
         <Stack.Screen name="Screen04" component={Screen04} />
         <Stack.Screen name="Screen05" component={Screen05} />
         <Stack.Screen name="Screen06" component={Screen06} />
