@@ -11,77 +11,37 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-import { Icon, Rating } from "react-native-elements";
+import { Icon, Rating, AirbnbRating } from "react-native-elements";
 import COLORS from "../components/colors";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { app } from "../config/firebaseConfig";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
 
-export default function Screen03({ navigation }) {
-  const [data, setData] = useState([
-    {
-      name: "Pear",
-      img: require("../assets/imgs/pear.png"),
-      price: 3,
-    },
+export default function Screen02({ navigation }) {
+  const db = getFirestore(app);
+  const [products, setProducts] = useState([]);
 
-    {
-      name: "Avocado",
-      img: require("../assets/imgs/pear.png"),
-      price: 4,
-    },
-    {
-      name: "Cherry",
-      img: require("../assets/imgs/pear.png"),
-      price: 10,
-    },
-    {
-      name: "Orange",
-      img: require("../assets/imgs/pear.png"),
-      price: 7,
-    },
-  ]);
-  const renderListCol2 = ({ item }) => (
-    <View style={{ width: 100, height: 180, margin: 10, flex: 1 }}>
-      <View
-        style={{
-          backgroundColor: COLORS.gray,
-          width: "100%",
-          height: 120,
-          borderRadius: 10,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Image source={item.img} style={{ width: 120, height: 120 }} />
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: 8,
-          marginHorizontal: 10,
-        }}
-      >
-        <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
-        <Icon name="add-circle-outline" size={24} color="gray" />
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: 5,
-          marginHorizontal: 10,
-        }}
-      >
-        <Rating imageSize={13} />
-        <Text style={{ fontWeight: "bold" }}>${item.price}</Text>
-      </View>
-    </View>
-  );
+  useEffect(() => {
+    getProduct();
+  }, []);
+
+  const getProduct = async () => {
+    const querySnapshot = await getDocs(collection(db, "Product"));
+    const data = querySnapshot.docs
+      .map((doc) => doc.data())
+      .filter((product) => product.category === "Electronics"); // Lọc sản phẩm có category là Electronics
+    setProducts(data);
+  };
+
+  const [cart, setCart] = useState([]);
+  // Hàm thêm sản phẩm vào giỏ hàng
+  const addToCart = (product) => {
+    setCart((prevCart) => [...prevCart, product]);
+    navigation.navigate("Screen07", { cartItems: [...cart, product] }); // Điều hướng tới Screen07 với dữ liệu giỏ hàng
+  };
 
   const renderListRow = ({ item }) => (
-    <View
+    <TouchableOpacity
       style={{
         borderRadius: 5,
         borderColor: COLORS.gray,
@@ -95,24 +55,28 @@ export default function Screen03({ navigation }) {
     >
       <View style={{ flexDirection: "row" }}>
         <Image
-          source={item.img}
+          source={{ uri: item.mainImage }}
           style={{ width: 50, height: 50, marginHorizontal: 10 }}
         />
 
-        <View>
+        <View style={{ flex: 1, alignItems: "flex-start" }}>
           <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
             {item.name}
           </Text>
           <Rating imageSize={13} />
         </View>
       </View>
-      <View style={{ marginRight: 10, alignItems: "center" }}>
-        <Icon name="add-circle-outline" size={24} color="gray" />
-        <Text style={{ fontWeight: "bold" }}>${item.price}</Text>
-      </View>
-    </View>
-  );
+      <View style={{ width: 70 }}>
+        <TouchableOpacity onPress={() => addToCart(item)}>
+          <Icon name="add-circle-outline" size={24} color="green" />
+        </TouchableOpacity>
 
+        <Text style={{ fontWeight: "bold", textAlign: "center" }}>
+          ${item.price}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -121,7 +85,7 @@ export default function Screen03({ navigation }) {
             <Pressable onPress={() => navigation.goBack()}>
               <Icon name="left" type="antdesign" size={20} color="gray" />
             </Pressable>
-            <Text style={styles.alldeals}>All Deals</Text>
+            <Text style={styles.alldeals}>Electronics</Text>
           </View>
 
           <View style={styles.itemRight}>
@@ -146,41 +110,76 @@ export default function Screen03({ navigation }) {
           <Icon name="filter-list" size={20} color="gray" />
         </Pressable>
       </View>
-      <View style={{ flex: 10 }}>
-        <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-          <View style={styles.banner}>
-            <Image
-              source={require("../assets/imgs/banner.png")}
-              style={{ width: null, resizeMode: "cover" }}
-            />
+      <View style={styles.body}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={{ flex: 0.5 }}>
+            <View style={styles.row}>
+              <Text style={styles.title}>Categories</Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text>See all</Text>
+                <Icon
+                  name="triangle-right"
+                  type="entypo"
+                  size={15}
+                  color="gray"
+                />
+              </View>
+            </View>
+            <View style={styles.btnCategory}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#C3EFB9",
+                  borderRadius: 10,
+                  padding: 8,
+                }}
+              >
+                <Image source={require("../assets/imgs/mobileHeader.png")} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#BCDAF9",
+                  borderRadius: 10,
+                  padding: 8,
+                }}
+              >
+                <Image source={require("../assets/imgs/ipadHeader.png")} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#FAE7B6",
+                  borderRadius: 10,
+                  padding: 8,
+                }}
+              >
+                <Image source={require("../assets/imgs/lapTopHeader.png")} />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.listCol2}>
-            <FlatList data={data} renderItem={renderListCol2} numColumns={2} />
+          <View style={styles.filter}>
+            <TouchableOpacity style={styles.filterItem}>
+              <Text>Best Sales</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.filterItem}>
+              <Text>Best Matched</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.filterItem}>
+              <Text>Popular</Text>
+            </TouchableOpacity>
           </View>
 
+          <View style={{ flex: 1, marginTop: 20 }}>
+            <FlatList data={products} renderItem={renderListRow} />
+          </View>
           <TouchableOpacity style={styles.btnSeeAll}>
             <Text style={styles.textSeeAll}>See all</Text>
           </TouchableOpacity>
-
-          <View style={styles.listRow}>
-            <View style={styles.row}>
-              <Text style={{ fontWeight: "bold" }}>Relavant Products</Text>
-
-              <Pressable
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginRight: 20,
-                }}
-              >
-                <Text style={styles.grayText}>See all</Text>
-                <Icon name="right" type="antdesign" size={12} color="gray" />
-              </Pressable>
-            </View>
-
-            <View style={{ flex: 1, marginTop: 20 }}>
-              <FlatList data={data} renderItem={renderListRow} />
-            </View>
+          <View style={styles.banner}>
+            <Image
+              source={require("../assets/imgs/bannerFooter.png")}
+              style={{ borderRadius: 10, resizeMode: "stretch", width: null }}
+            />
           </View>
         </ScrollView>
       </View>
@@ -189,13 +188,7 @@ export default function Screen03({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  grayText: { color: "gray" },
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-  },
   header: {
-    flexDirection: "column",
     paddingVertical: 10,
     marginHorizontal: 15,
   },
@@ -241,31 +234,39 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     marginTop: 10,
+    marginHorizontal: 15,
   },
-  banner: {
-    height: 100,
-    width: "100%",
-    paddingHorizontal: 15,
+  title: {
+    fontWeight: "bold",
   },
+  btnCategory: {
+    flexDirection: "row",
 
-  listCol2: {
-    marginTop: 40,
-    marginHorizontal: 5,
+    marginTop: 10,
+    justifyContent: "space-between",
+  },
+  filter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 30,
   },
   btnSeeAll: {
     backgroundColor: COLORS.gray,
     paddingVertical: 7,
-    marginHorizontal: 15,
-    marginTop: 10,
-    marginBottom: 25,
+    justifyContent: "center",
+    marginVertical: 10,
+    borderRadius: 10,
   },
   textSeeAll: {
-    color: "gray",
     textAlign: "center",
   },
-
-  listRow: {
-    marginTop: 10,
-    marginHorizontal: 15,
+  banner: {
+    marginVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "green",
+  },
+  container: {
+    backgroundColor: "white",
+    flex: 1,
   },
 });

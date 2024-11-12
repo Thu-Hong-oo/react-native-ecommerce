@@ -5,88 +5,48 @@ import {
   Image,
   SafeAreaView,
   Pressable,
-  TextInput,
   ScrollView,
+  TextInput,
+  ImageBackground,
   FlatList,
   TouchableOpacity,
-  Button,
 } from "react-native";
-import { Icon, Rating, AirbnbRating } from "react-native-elements";
-import COLORS from "../components/colors";
-import { useState, useEffect } from "react";
+import { Icon } from "react-native-elements";
 import { app } from "../config/firebaseConfig";
+import COLORS from "../components/colors";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
+import { useEffect, useState } from "react";
 
-export default function Screen02({ navigation }) {
+export default function Screen01({ navigation }) {
   const db = getFirestore(app);
-  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    getProduct();
+    getCategory();
   }, []);
-
-  const getProduct = async () => {
-    const querySnapshot = await getDocs(collection(db, "Product"));
-    const data = querySnapshot.docs
-      .map((doc) => doc.data())
-      .filter((product) => product.category === "Electronics"); // Lọc sản phẩm có category là Electronics
-    setProducts(data);
+  const getCategory = async () => {
+    const querySnapshot = await getDocs(collection(db, "Category"));
+    const data = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setCategories(data);
   };
-
-  const [cart, setCart] = useState([]);
-  // Hàm thêm sản phẩm vào giỏ hàng
-  const addToCart = (product) => {
-    setCart((prevCart) => [...prevCart, product]);
-    navigation.navigate("Screen07", { cartItems: [...cart, product] }); // Điều hướng tới Screen07 với dữ liệu giỏ hàng
+  const generateColor = () => {
+    const CHHAPOLA = Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, "0");
+    return `#${CHHAPOLA}`;
   };
-
-  const renderListRow = ({ item }) => (
-    <TouchableOpacity
-      style={{
-        borderRadius: 5,
-        borderColor: COLORS.gray,
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingVertical: 10,
-        justifyContent: "space-between",
-        flexDirection: "row",
-        alignItems: "center",
-      }}
-    >
-      <View style={{ flexDirection: "row" }}>
-        <Image
-          source={{ uri: item.mainImage }}
-          style={{ width: 50, height: 50, marginHorizontal: 10 }}
-        />
-
-        <View style={{ flex: 1, alignItems: "flex-start" }}>
-          <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
-            {item.name}
-          </Text>
-          <Rating imageSize={13} />
-        </View>
-      </View>
-      <View style={{ width: 70 }}>
-        <TouchableOpacity onPress={() => addToCart(item)}>
-          <Icon name="add-circle-outline" size={24} color="green" />
-        </TouchableOpacity>
-
-        <Text style={{ fontWeight: "bold", textAlign: "center" }}>
-          ${item.price}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.row}>
           <View style={styles.itemLeft}>
-            <Pressable onPress={() => navigation.goBack()}>
+            <Pressable>
               <Icon name="left" type="antdesign" size={20} color="gray" />
             </Pressable>
-            <Text style={styles.alldeals}>Electronics</Text>
+            <Text style={styles.alldeals}>All Deals</Text>
           </View>
 
           <View style={styles.itemRight}>
@@ -98,97 +58,157 @@ export default function Screen02({ navigation }) {
           </View>
         </View>
       </View>
-      <View style={styles.viewSearch}>
-        <View style={styles.inputSearch}>
-          <Icon name="search" size={20} />
+      <View style={styles.searchAndFilter}>
+        <View style={styles.search}>
+          <Icon style={styles.iconSize} name="search" />
           <TextInput
-            placeholder="Search"
-            placeholderTextColor="gray"
-            style={{ paddingVertical: 3, width: "100%" }}
-          ></TextInput>
+            style={styles.searchInput}
+            placeholder="Search for product"
+            placeholderTextColor="#BCC1CA"
+          />
         </View>
-        <Pressable style={styles.buttonList}>
-          <Icon name="filter-list" size={20} color="gray" />
-        </Pressable>
+        <View style={styles.filter}>
+          <Icon style={styles.iconSize} name="filter-list" />
+        </View>
       </View>
-      <View style={{ flex: 1 }}>
+      <View style={styles.body}>
         <ScrollView
-          style={styles.body}
           contentContainerStyle={{ flexGrow: 1 }}
-          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
         >
-          <View style={styles.viewCategory}>
-            <View style={styles.row}>
-              <Text style={styles.title}>Categories</Text>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text>See all</Text>
-                <Icon
-                  name="triangle-right"
-                  type="entypo"
-                  size={15}
-                  color="gray"
-                />
+          <View style={styles.categories}>
+            <FlatList
+              data={categories}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item: category }) => (
+                <TouchableOpacity
+                  style={styles.category}
+                  onPress={() => {
+                    console.log("Navigating to:", category.name);
+                    navigation.navigate(category.name);
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.imageCategory,
+                      { backgroundColor: generateColor() },
+                    ]}
+                  >
+                    <Image
+                      source={{ uri: category.image }}
+                      style={{ width: 50, height: 50 }}
+                    />
+                  </View>
+                  <Text style={styles.textCategory}>{category.name}</Text>
+                </TouchableOpacity>
+              )}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
+          <View style={styles.banner}>
+            <View style={styles.leftBanner}>
+              <Text style={styles.text1Banner}>Shoes</Text>
+              <Text style={styles.text2Banner}>50% off</Text>
+
+              <Pressable style={styles.buttonBanner}>
+                <Text style={styles.textButtonBanner}>Buy now</Text>
+              </Pressable>
+            </View>
+
+            <Image source={require("../assets/imgs/bannerHome.png")} />
+          </View>
+
+          <View style={styles.topProduct}>
+            <Pressable style={styles.eachTopProduct}>
+              <ImageBackground
+                style={styles.imageEachTopProduct}
+                source={require("../assets/imgs/sale.png")}
+              >
+                <Text style={styles.textDiscountEachtopProduct}>30%aaa</Text>
+              </ImageBackground>
+            </Pressable>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Test")}
+              style={styles.eachTopProduct}
+            >
+              <ImageBackground
+                style={styles.imageEachTopProduct}
+                source={require("../assets/imgs/sale.png")}
+              >
+                <Text style={styles.textDiscountEachtopProduct}>30%</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.recommend}>
+            <Text style={styles.text1Recommned}>Recommended for you</Text>
+            <Text style={styles.text2Recommend}>View all</Text>
+          </View>
+
+          <View style={styles.recommend}>
+            <View style={styles.recommendProduct}>
+              <Image source={require("../assets/imgs/shoesRcm.png")} />
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: "100%",
+                }}
+              >
+                <View>
+                  <Text style={styles.textName}>Shoes</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Icon name="star" size={20} color="#F3C63F" />
+                    <Text style={styles.textRating}>&nbsp; 4.5</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.textPrice}>299$</Text>
               </View>
             </View>
-            <View style={styles.btnCategory}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("Home")}
+            <View style={styles.recommendProduct}>
+              <Image source={require("../assets/imgs/shoesRcm.png")} />
+              <View
                 style={{
-                  backgroundColor: "#C3EFB9",
-                  borderRadius: 10,
-                  padding: 8,
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: "100%",
                 }}
               >
-                <Image source={require("../assets/imgs/mobileHeader.png")} />
-              </TouchableOpacity>
+                <View>
+                  <Text style={styles.textName}>Shoes</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Icon name="star" size={20} color="#F3C63F" />
+                    <Text style={styles.textRating}>&nbsp; 4.5</Text>
+                  </View>
+                </View>
 
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#BCDAF9",
-                  borderRadius: 10,
-                  padding: 8,
-                }}
-              >
-                <Image source={require("../assets/imgs/ipadHeader.png")} />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#FAE7B6",
-                  borderRadius: 10,
-                  padding: 8,
-                }}
-              >
-                <Image source={require("../assets/imgs/lapTopHeader.png")} />
-              </TouchableOpacity>
+                <Text style={styles.textPrice}>299$</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.filter}>
-            <TouchableOpacity style={styles.filterItem}>
-              <Text>Best Sales</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.filterItem}>
-              <Text>Best Matched</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.filterItem}>
-              <Text>Popular</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{ flex: 1, marginTop: 20 }}>
-            <FlatList
-              data={products}
-              renderItem={renderListRow}
-              scrollEnabled={false}
-            />
-          </View>
-          <TouchableOpacity style={styles.btnSeeAll}>
-            <Text style={styles.textSeeAll}>See all</Text>
-          </TouchableOpacity>
-          <View style={styles.banner}>
-            <Image
-              source={require("../assets/imgs/bannerFooter.png")}
-              style={{ borderRadius: 10, resizeMode: "stretch", width: null }}
-            />
+
+            <View style={styles.recommendProduct}>
+              <Image source={require("../assets/imgs/shoesRcm.png")} />
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: "100%",
+                }}
+              >
+                <View>
+                  <Text style={styles.textName}>Shoes</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Icon name="star" size={20} color="#F3C63F" />
+                    <Text style={styles.textRating}>&nbsp; 4.5</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.textPrice}>299$</Text>
+              </View>
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -197,38 +217,30 @@ export default function Screen02({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  header: {
-    paddingVertical: 10,
-    marginHorizontal: 15,
-  },
+  header: {},
   row: {
     flexDirection: "row",
     alignItems: "center",
+    paddingTop: 3,
+    paddingHorizontal: 10,
     justifyContent: "space-between",
   },
-  itemLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+  itemLeft: { flexDirection: "row", alignItems: "center" },
+  itemRight: { flexDirection: "row", alignItems: "center" },
+  alldeals: { paddingHorizontal: 10, fontSize: 16, fontWeight: "bold" },
+
+  body: { flex: 10 },
+
+  iconSize: {
+    width: 25,
+    height: 25,
   },
-  itemRight: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  alldeals: {
-    paddingHorizontal: 10,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  viewSearch: {
+  searchAndFilter: {
     flexDirection: "row",
     marginHorizontal: 15,
     marginVertical: 10,
   },
-  inputSearch: {
+  search: {
     flexDirection: "row",
     backgroundColor: COLORS.gray,
     alignItems: "center",
@@ -237,45 +249,131 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 10,
   },
-  buttonList: {
+  searchInput: {
+    fontSize: 20,
+  },
+  filter: {
     marginLeft: 10,
     backgroundColor: COLORS.gray,
     justifyContent: "center",
     paddingHorizontal: 10,
     borderRadius: 10,
   },
-  body: {
-    flex: 1,
-    marginTop: 10,
-    marginHorizontal: 15,
+  categories: {
+    padding: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
-  title: {
+  category: {
+    alignItems: "center",
+  },
+  textCategory: {
     fontWeight: "bold",
+    fontSize: 16,
   },
-  btnCategory: {
-    flexDirection: "row",
-    flex: 1,
-    marginTop: 10,
-    justifyContent: "space-between",
-  },
-  filter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 30,
-  },
-  btnSeeAll: {
-    backgroundColor: COLORS.gray,
-    paddingVertical: 7,
+  imageCategory: {
+    borderRadius: "100%",
+    alignItems: "center",
     justifyContent: "center",
-    marginVertical: 10,
-    borderRadius: 10,
-  },
-  textSeeAll: {
-    textAlign: "center",
+    width: 85,
+    height: 85,
+    resizeMode: "cover",
+    marginHorizontal: 8,
   },
   banner: {
-    marginVertical: 10,
-    borderRadius: 10,
-    backgroundColor: "green",
+    backgroundColor: "#F3FCF0",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 20,
+  },
+  leftBanner: {
+    paddingHorizontal: 20,
+  },
+  text1Banner: {
+    color: "#FF6026",
+    fontSize: 36,
+  },
+  text2Banner: {
+    fontSize: 26,
+  },
+  buttonBanner: {
+    marginTop: 20,
+    backgroundColor: "black",
+    borderRadius: 6,
+    alignItems: "center",
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    padding: 8,
+  },
+  textButtonBanner: {
+    color: "white",
+  },
+  recommend: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+  },
+  text1Recommned: {
+    fontSize: 23,
+  },
+  text2Recommend: {
+    fontSize: 17,
+    color: "darkgrey",
+  },
+  recommendProduct: {
+    height: 200,
+    width: 130,
+    backgroundColor: "#F8F9FA",
+    borderRadius: 6,
+    alignItems: "center",
+    paddingTop: 20,
+    marginHorizontal: 6,
+  },
+  textName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+  textPrice: {
+    fontSize: 18,
+    color: "#FF6026",
+    marginTop: 35,
+  },
+
+  container: {
+    justifyContent: "center",
+    padding: 24,
+    backgroundColor: "white",
+    flex: 1,
+  },
+  topProduct: {
+    padding: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    // backgroundColor:'pink',
+  },
+  eachTopProduct: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  imageEachTopProduct: {
+    width: null,
+    height: 150,
+    resizeMode: "cover",
+  },
+  textDiscountEachtopProduct: {
+    marginTop: 10,
+    marginLeft: 2,
+    backgroundColor: "#EB235F",
+    paddingVertical: 10,
+    justifyContent: "space-between",
+    height: 30,
+    width: 50,
+    color: "white",
+    textAlign: "center",
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
   },
 });
