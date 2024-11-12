@@ -13,34 +13,48 @@ import {
 } from "react-native";
 import { Icon, Rating } from "react-native-elements";
 import COLORS from "../components/colors";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { app } from "../config/firebaseConfig";
 
-export default function Screen03({ navigation }) {
-  const [data, setData] = useState([
-    {
-      name: "Pear",
-      img: require("../assets/imgs/pear.png"),
-      price: 3,
-    },
+import { collection, getDocs, getFirestore } from "firebase/firestore";
 
-    {
-      name: "Avocado",
-      img: require("../assets/imgs/pear.png"),
-      price: 4,
-    },
-    {
-      name: "Cherry",
-      img: require("../assets/imgs/pear.png"),
-      price: 10,
-    },
-    {
-      name: "Orange",
-      img: require("../assets/imgs/pear.png"),
-      price: 7,
-    },
-  ]);
+export default function Screen03() {
+  const db = getFirestore(app);
+  const [allFreshFruit, setAllFreshFruit] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  const [showAllRelevant, setShowAllRelevant] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(3); // Số sản phẩm hiển thị mỗi lần
+
+  useEffect(() => {
+    getAllFreshFruit();
+  }, []);
+  const getAllFreshFruit = async () => {
+    const querySnapshot = await getDocs(collection(db, "Product"));
+    const data = querySnapshot.docs
+      .map((doc) => doc.data())
+      .filter((product) => product.category === "fresh fruit"); // Lọc sản phẩm có category là Electronics
+    setAllFreshFruit(data); // Cập nhật sản phẩm vào state
+  };
+
+  const filteredFreshFruit = allFreshFruit.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const displayedFreshFruit = showAll
+    ? filteredFreshFruit
+    : filteredFreshFruit.slice(0, 4);
+
+  const relevantProducts = allFreshFruit.filter(
+    (item) =>
+      !filteredFreshFruit.some((filtered) => filtered.name === item.name)
+  );
+
+  const displayedRelevantProducts = showAllRelevant
+    ? relevantProducts
+    : relevantProducts.slice(0, 3);
+
   const renderListCol2 = ({ item }) => (
-    <View style={{ width: 100, height: 180, margin: 10, flex: 1 }}>
+    <View style={{ height: 180, padding: 10, width: "50%" }}>
       <View
         style={{
           backgroundColor: COLORS.gray,
@@ -51,7 +65,7 @@ export default function Screen03({ navigation }) {
           justifyContent: "center",
         }}
       >
-        <Image source={item.img} style={{ width: 120, height: 120 }} />
+        <Image source={item.mainImage} style={{ width: 120, height: 120 }} />
       </View>
       <View
         style={{
@@ -95,7 +109,7 @@ export default function Screen03({ navigation }) {
     >
       <View style={{ flexDirection: "row" }}>
         <Image
-          source={item.img}
+          source={item.mainImage}
           style={{ width: 50, height: 50, marginHorizontal: 10 }}
         />
 
@@ -118,10 +132,10 @@ export default function Screen03({ navigation }) {
       <View style={styles.header}>
         <View style={styles.row}>
           <View style={styles.itemLeft}>
-            <Pressable onPress={() => navigation.goBack()}>
+            <Pressable>
               <Icon name="left" type="antdesign" size={20} color="gray" />
             </Pressable>
-            <Text style={styles.alldeals}>All Deals</Text>
+            <Text style={styles.alldeals}>Fresh Fruit</Text>
           </View>
 
           <View style={styles.itemRight}>
@@ -140,7 +154,9 @@ export default function Screen03({ navigation }) {
             placeholder="Search"
             placeholderTextColor="gray"
             style={{ paddingVertical: 3, width: "100%" }}
-          ></TextInput>
+            value={searchTerm} // Gán giá trị từ state
+            onChangeText={(text) => setSearchTerm(text)} // Cập nhật state khi người dùng nhập
+          />
         </View>
         <Pressable style={styles.buttonList}>
           <Icon name="filter-list" size={20} color="gray" />
@@ -155,33 +171,48 @@ export default function Screen03({ navigation }) {
             />
           </View>
           <View style={styles.listCol2}>
-            <FlatList data={data} renderItem={renderListCol2} numColumns={2} />
+            <FlatList
+              data={displayedFreshFruit} // Sử dụng danh sách đã được kiểm soát
+              renderItem={renderListCol2}
+              numColumns={2}
+            />
           </View>
 
-          <TouchableOpacity style={styles.btnSeeAll}>
+          <TouchableOpacity
+            style={styles.btnSeeAll}
+            onPress={() => setShowAll(true)}
+          >
             <Text style={styles.textSeeAll}>See all</Text>
           </TouchableOpacity>
 
-          <View style={styles.listRow}>
-            <View style={styles.row}>
-              <Text style={{ fontWeight: "bold" }}>Relavant Products</Text>
-
-              <Pressable
+          {searchTerm.length > 0 && (
+            <View style={styles.listRow}>
+              <View style={styles.row}>
+                <Text style={{ fontWeight: "bold" }}>Relevant Products</Text>
+                <Pressable
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginRight: 20,
+                  }}
+                  onPress={() => setShowAllRelevant((prev) => !prev)} // Chuyển đổi trạng thái
+                >
+                  <Text style={styles.grayText}>
+                    {showAllRelevant ? "Hide" : "See all"}
+                  </Text>
+                  <Icon name="right" type="antdesign" size={12} color="gray" />
+                </Pressable>
+              </View>
+              <FlatList
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginRight: 20,
+                  height: 300,
                 }}
-              >
-                <Text style={styles.grayText}>See all</Text>
-                <Icon name="right" type="antdesign" size={12} color="gray" />
-              </Pressable>
+                data={displayedRelevantProducts} // Chỉ hiển thị số lượng sản phẩm được chỉ định
+                renderItem={renderListRow}
+                keyExtractor={(item) => item.name} // Giả sử mỗi sản phẩm có tên duy nhất
+              />
             </View>
-
-            <View style={{ flex: 1, marginTop: 20 }}>
-              <FlatList data={data} renderItem={renderListRow} />
-            </View>
-          </View>
+          )}
         </ScrollView>
       </View>
     </SafeAreaView>
