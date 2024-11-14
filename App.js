@@ -1,13 +1,21 @@
-import React from "react";
-import "@expo/metro-runtime";
+// src/App.js
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import COLORS from "./components/colors";
+import { Provider, useSelector } from "react-redux"; // Sử dụng useSelector
+import store from "./redux/store"; // Import store
+import "@expo/metro-runtime";
+
+import Home from "./screens/Home";
+import Search from "./screens/Search";
+import SignIn from "./screens/SignIn";
+import SignUp from "./screens/SignUp";
+import ForgotPassword from "./screens/ForgotPassword";
 
 import Screen01 from "./screens/Screen01";
-import Electronics from "./screens/Screen02";
+import Screen02 from "./screens/Screen02";
 import Screen03 from "./screens/Screen03";
 import Screen04 from "./screens/Screen04";
 import Screen05 from "./screens/Screen05";
@@ -16,14 +24,71 @@ import Screen07 from "./screens/Screen07";
 import Screen08 from "./screens/Screen08";
 import Screen09 from "./screens/Screen09";
 import Screen10 from "./screens/Screen10";
-import SignIn from "./screens/SignIn";
-import SignUp from "./screens/SignUp";
-import ForgotPassword from "./screens/ForgotPassword";
+import COLORS from "./components/Colors";
 
-
-
+// Tạo các navigator
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+// Kiểm tra trạng thái người dùng, nếu đã đăng nhập thì hiển thị HomeTab, chưa thì chuyển tới SignIn
+function RootNavigator() {
+  const user = useSelector((state) => state.user.user); // Lấy thông tin người dùng từ Redux
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {user ? (
+        // Nếu người dùng đã đăng nhập, hiển thị BottomTabs
+        <Stack.Screen name="MainTabs" component={BottomTabs} />
+      ) : (
+        // Nếu chưa đăng nhập,
+        <>
+          <Stack.Screen name="SignIn" component={SignIn} />
+          <Stack.Screen name="SignUp" component={SignUp} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+}
+
+// Home stack
+function HomeStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="Screen01" component={Screen01} />
+      <Stack.Screen name="Electronics" component={Screen02} />
+      <Stack.Screen name="Search" component={Search} />
+    </Stack.Navigator>
+  );
+}
+
+// My Order stack
+function OrderStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Order" component={Search} />
+    </Stack.Navigator>
+  );
+}
+
+// Favorite stack
+function FavoriteStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="SignIn" component={SignIn} />
+      <Stack.Screen name="SignUp" component={SignUp} />
+    </Stack.Navigator>
+  );
+}
+
+// My Profile stack
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ProfileScreen" component={Screen06} />
+    </Stack.Navigator>
+  );
+}
 
 function BottomTabs() {
   return (
@@ -31,41 +96,52 @@ function BottomTabs() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === "Home") {
+          if (route.name === "HomeTab") {
             iconName = focused ? "home" : "home-outline";
-          } else if (route.name === "Search") {
-            iconName = focused ? "search" : "search-outline";
-          } else if (route.name === "Favorite") {
+          } else if (route.name === "OrderTab") {
+            iconName = focused ? "cart" : "cart-outline";
+          } else if (route.name === "FavoriteTab") {
             iconName = focused ? "heart" : "heart-outline";
-          } else if (route.name === "Inbox") {
-            iconName = focused
-              ? "chatbox-ellipses"
-              : "chatbox-ellipses-outline";
-          } else if (route.name === "Account") {
+          } else if (route.name === "ProfileTab") {
             iconName = focused ? "person-circle" : "person-circle-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: COLORS.orange,
+        tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: "gray",
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={SignUp} />
-      <Tab.Screen name="Search" component={SignIn} />
-      <Tab.Screen name="Favorite" component={ForgotPassword} />
-      <Tab.Screen name="Inbox" component={Screen04} />
-      <Tab.Screen name="Account" component={Screen05} />
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeStack}
+        options={{ title: "Home" }}
+      />
+      <Tab.Screen
+        name="OrderTab"
+        component={OrderStack}
+        options={{ title: "My Order" }}
+      />
+      <Tab.Screen
+        name="FavoriteTab"
+        component={FavoriteStack}
+        options={{ title: "Favorite" }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileStack}
+        options={{ title: "My Profile" }}
+      />
     </Tab.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="MainTabs" component={BottomTabs} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <RootNavigator /> {/* Chạy RootNavigator để điều hướng ứng dụng */}
+      </NavigationContainer>
+    </Provider>
   );
 }

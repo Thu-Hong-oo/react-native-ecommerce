@@ -12,8 +12,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Icon } from "react-native-elements";
+import COLORS from "../components/Colors";
 import { app } from "../config/firebaseConfig";
-import COLORS from "../components/colors";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
 

@@ -1,9 +1,114 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; // Đã sửa thành FontAwesome từ @expo/vector-icons
-import COLORS from '../components/colors';
-
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  Image,
+} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import COLORS from "../components/Colors";
+import { auth } from "../config/firebaseConfig";
+import { useDispatch } from "react-redux"; // Import useDispatch
+import { setUser } from "../redux/slices/userSlice"; // Import action setUser
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  signInWithPopup,
+} from "firebase/auth";
+import { fetchUserData } from "../services/firestoreServices";
 const SignIn = ({ navigation }) => {
+  const dispatch = useDispatch(); // Khởi tạo dispatch
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      alert("Login successful!");
+
+      // Lấy thông tin người dùng từ Firestore
+      const userId = userCredential.user.uid;
+      const userData = await fetchUserData(userId);
+
+      if (userData) {
+        // Dispatch action để lưu thông tin người dùng vào Redux
+        dispatch(
+          setUser({
+            name: userData.personal_information.personal_info.full_name,
+            avatar: userData.personal_information.personal_info.avatar || null,
+            email: userData.personal_information.personal_info.email,
+          })
+        );
+      }
+
+      navigation.navigate("Home"); // Chuyển sang trang Home
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      if (Platform.OS === "web") {
+        await signInWithRedirect(auth, provider);
+      } else {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // Lấy thông tin từ Firestore
+        const userData = await fetchUserData(user.uid);
+        dispatch(
+          setUser({
+            name: userData.personal_information.personal_info.full_name,
+            avatar: userData.personal_information.personal_info.avatar || null,
+            email: userData.personal_information.personal_info.email,
+          })
+        );
+        alert("Login successful!");
+        navigation.navigate("Home");
+      }
+    } catch (error) {
+      console.error("Google Login Error:", error); // Log lỗi
+      alert(error.message);
+    }
+  };
+
+  // Xử lý kết quả sau khi redirect trên web
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      getRedirectResult(auth)
+        .then((result) => {
+          if (result) {
+            const user = result.user;
+            dispatch(
+              setUser({
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                email: user.email,
+              })
+            );
+
+            alert("Login successful!");
+            navigation.navigate("Home");
+          }
+        })
+        .catch((error) => {
+          console.error("Redirect Error:", error);
+          alert(error.message);
+        });
+    }
+  }, [navigation, dispatch]);
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
@@ -11,53 +116,62 @@ const SignIn = ({ navigation }) => {
 
         {/* Input for Username/Email */}
         <View style={styles.inputContainer}>
-          <FontAwesome name="user" style={styles.icon} /> {/* Sử dụng FontAwesome */}
+          <FontAwesome name="user" style={styles.icon} />
           <TextInput
             placeholder="Username or Email"
             style={styles.input}
             placeholderTextColor="#7a7a7a"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
         {/* Input for Password */}
         <View style={styles.inputContainer}>
-          <FontAwesome name="lock" style={styles.icon} /> {/* Sử dụng FontAwesome */}
+          <FontAwesome name="lock" style={styles.icon} />
           <TextInput
             placeholder="Password"
             secureTextEntry={true}
             style={styles.input}
             placeholderTextColor="#7a7a7a"
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
 
-        <TouchableOpacity onPress={() => alert('Forgot Password')} style={styles.forgotPassword}>
+        <TouchableOpacity
+          onPress={() => alert("Forgot Password")}
+          style={styles.forgotPassword}
+        >
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>
 
         {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton}>
+        <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
           <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
 
         <Text style={styles.orText}>- OR Continue with -</Text>
 
-        {/* Social Media Icons with Border */}
+        {/* Google Login Button */}
         <View style={styles.socialContainer}>
-          <TouchableOpacity onPress={() => alert('Google Login')} style={styles.socialIconContainer}>
-            <FontAwesome name="google" style={[styles.socialIcon, { color: '#DB4437' }]} /> {/* Sử dụng FontAwesome */}
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => alert('Apple Login')} style={styles.socialIconContainer}>
-            <FontAwesome name="apple" style={[styles.socialIcon, { color: '#000000' }]} /> {/* Sử dụng FontAwesome */}
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => alert('Facebook Login')} style={styles.socialIconContainer}>
-            <FontAwesome name="facebook" style={[styles.socialIcon, { color: '#3b5998' }]} /> {/* Sử dụng FontAwesome */}
+          <TouchableOpacity
+            onPress={handleGoogleLogin}
+            style={styles.socialIconContainer}
+          >
+            <Image
+              source={{
+                uri: "https://i.imgur.com/OOTtYLq.png",
+              }}
+              style={styles.socialIcon}
+            />
           </TouchableOpacity>
         </View>
 
         {/* Sign Up Link */}
         <View style={styles.signUpContainer}>
           <Text style={styles.signUpText}>Create An Account </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
             <Text style={styles.signUpLink}>Sign Up</Text>
           </TouchableOpacity>
         </View>
@@ -66,100 +180,101 @@ const SignIn = ({ navigation }) => {
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     width: 300,
     padding: 20,
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
   title: {
-    color: '#000',
+    color: "#000",
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 10,
   },
   icon: {
     fontSize: 18,
-    color: '#7a7a7a',
+    color: "#7a7a7a",
     marginRight: 8,
   },
   input: {
     flex: 1,
     paddingVertical: 8,
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   forgotPassword: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     marginBottom: 20,
   },
   forgotPasswordText: {
-    color: COLORS.orange,
+    color: COLORS.primary,
     fontSize: 12,
   },
   loginButton: {
-    backgroundColor: COLORS.orange,
+    backgroundColor: COLORS.primary,
     borderRadius: 8,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   loginButtonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
+    color: "#ffffff",
+    fontWeight: "bold",
     fontSize: 16,
   },
   orText: {
-    textAlign: 'center',
-    color: '#7a7a7a',
+    textAlign: "center",
+    color: "#7a7a7a",
     marginVertical: 15,
   },
   socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 20,
   },
   socialIconContainer: {
     borderWidth: 1,
-    borderColor: COLORS.orange,
+    borderColor: COLORS.primary,
     borderRadius: 100,
-    padding: 10,
+    padding: 5,
     marginHorizontal: 10,
-    width:50,
+    width: 50,
   },
   socialIcon: {
-    fontSize: 30,
-   textAlign:"center"
+    width: 40,
+    height: 40,
   },
   signUpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
   },
   signUpText: {
-    color: '#7a7a7a',
+    color: "#7a7a7a",
   },
   signUpLink: {
-    color: COLORS.orange,
-    fontWeight: 'bold',
+    color: COLORS.primary,
+    fontWeight: "bold",
   },
 });
 

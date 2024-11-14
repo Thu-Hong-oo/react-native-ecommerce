@@ -12,7 +12,7 @@ import {
   Button,
 } from "react-native";
 import { Icon, Rating } from "react-native-elements";
-import COLORS from "../components/colors";
+import COLORS from "../components/Colors";
 import { useState, useEffect } from "react";
 import { app } from "../config/firebaseConfig";
 

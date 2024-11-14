@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
-import COLORS from '../components/colors';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import COLORS from "../components/Colors";
 
 const SignUp = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Create an account</Text>
-        
+
         {/* Form Input Fields */}
         <View style={styles.inputContainer}>
           <TextInput
@@ -18,7 +25,7 @@ const SignUp = ({ navigation }) => {
           />
           <FontAwesome name="user" style={styles.icon} />
         </View>
-        
+
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="Password"
@@ -28,7 +35,7 @@ const SignUp = ({ navigation }) => {
           />
           <FontAwesome name="lock" style={styles.icon} />
         </View>
-        
+
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="Confirm Password"
@@ -38,35 +45,54 @@ const SignUp = ({ navigation }) => {
           />
           <FontAwesome name="eye" style={styles.icon} />
         </View>
-        
+
         <Text style={styles.agreementText}>
-          By clicking the <Text style={styles.registerText}>Register</Text> button, you agree to the public offer
+          By clicking the <Text style={styles.registerText}>Register</Text>{" "}
+          button, you agree to the public offer
         </Text>
-        
+
         {/* Register Button */}
         <TouchableOpacity style={styles.registerButton}>
           <Text style={styles.registerButtonText}>Create Account</Text>
         </TouchableOpacity>
-        
+
         <Text style={styles.orText}>- OR Continue with -</Text>
-        
+
         {/* Social Media Icons */}
         <View style={styles.socialContainer}>
-          <TouchableOpacity onPress={() => alert('Google Login')} style={styles.socialIconContainer}>
-            <FontAwesome name="google" style={[styles.socialIcon, { color: '#DB4437' }]} />
+          <TouchableOpacity
+            onPress={() => alert("Google Login")}
+            style={styles.socialIconContainer}
+          >
+            <FontAwesome
+              name="google"
+              style={[styles.socialIcon, { color: "#DB4437" }]}
+            />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => alert('Apple Login')} style={styles.socialIconContainer}>
-            <FontAwesome name="apple" style={[styles.socialIcon, { color: '#000000' }]} />
+          <TouchableOpacity
+            onPress={() => alert("Apple Login")}
+            style={styles.socialIconContainer}
+          >
+            <FontAwesome
+              name="apple"
+              style={[styles.socialIcon, { color: "#000000" }]}
+            />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => alert('Facebook Login')} style={styles.socialIconContainer}>
-            <FontAwesome name="facebook" style={[styles.socialIcon, { color: '#3b5998' }]} />
+          <TouchableOpacity
+            onPress={() => alert("Facebook Login")}
+            style={styles.socialIconContainer}
+          >
+            <FontAwesome
+              name="facebook"
+              style={[styles.socialIcon, { color: "#3b5998" }]}
+            />
           </TouchableOpacity>
         </View>
-        
+
         {/* Login Link */}
         <View style={styles.loginContainer}>
           <Text style={styles.loginText}>I Already Have an Account </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+          <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
             <Text style={styles.loginLink}>Login</Text>
           </TouchableOpacity>
         </View>
@@ -79,32 +105,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     padding: 24,
     borderRadius: 10,
-    width: '90%',
+    width: "90%",
     maxWidth: 360,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   title: {
-    color: '#000',
+    color: "#000",
     fontSize: 30,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 25,
-    textAlign: 'center',
+    textAlign: "center",
   },
   inputContainer: {
-    position: 'relative',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    position: "relative",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
     borderRadius: 8,
     paddingHorizontal: 12,
     marginBottom: 10,
@@ -113,45 +139,45 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   icon: {
     fontSize: 18,
-    color: '#7a7a7a',
+    color: "#7a7a7a",
   },
   agreementText: {
     fontSize: 12,
-    color: '#7a7a7a',
+    color: "#7a7a7a",
     marginVertical: 10,
   },
   registerText: {
-    color: COLORS.orange,
+    color: COLORS.primary,
   },
   registerButton: {
-    backgroundColor: COLORS.orange,
+    backgroundColor: COLORS.primary,
     borderRadius: 8,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 15,
   },
   registerButtonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
+    color: "#ffffff",
+    fontWeight: "bold",
     fontSize: 16,
   },
   orText: {
-    textAlign: 'center',
-    color: '#7a7a7a',
+    textAlign: "center",
+    color: "#7a7a7a",
     marginVertical: 15,
   },
   socialContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 20,
   },
   socialIconContainer: {
     borderWidth: 1,
-    borderColor: COLORS.orange,
+    borderColor: COLORS.primary,
     borderRadius: 100,
     padding: 10,
     marginHorizontal: 10,
@@ -159,18 +185,18 @@ const styles = StyleSheet.create({
   },
   socialIcon: {
     fontSize: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
   },
   loginText: {
-    color: '#7a7a7a',
+    color: "#7a7a7a",
   },
   loginLink: {
-    color: COLORS.orange,
-    fontWeight: 'bold',
+    color: COLORS.primary,
+    fontWeight: "bold",
   },
 });
 

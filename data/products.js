@@ -22,14 +22,12 @@ const collectionRef = db.collection("Product");
 // Define the data for the documents
 const dataArray = [
   {
-    bestSale: true,
     category: "Electronics",
     color: ["black", "white", "blue"],
     description: "Latest iPhone with advanced features.",
     mainImage:
       "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/2023_9_20_638307980220145280_iphone-15-promax-den-1.jpg",
     name: "iPhone 16",
-    popular: true,
     price: 800,
     quantity: 50,
     subImages: [

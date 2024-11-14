@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { Icon } from "react-native-elements";
-import COLORS from "../components/colors";
+import COLORS from "../components/Colors";
 
 const Screen07 = ({ navigation }) => (
   <View style={styles.container}>
@@ -205,4 +205,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default  Screen07;
+export default Screen07;

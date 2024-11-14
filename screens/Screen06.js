@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import COLORS from "../components/colors";
+import COLORS from "../components/Colors";
 import { Icon } from "react-native-elements";
 
 export default function Screen06({ navigation }) {

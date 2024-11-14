@@ -12,9 +12,9 @@ import {
   Button,
 } from "react-native";
 import { Icon, Rating, Switch } from "react-native-elements";
-import COLORS from "../components/colors";
+import COLORS from "../components/Colors";
 import { useState } from "react";
-import ProductRating from "../components/productRating";
+import ProductRating from "../components/ProductRating";
 
 export default function Screen05({ navigation }) {
   const [isEnabled, setIsEnabled] = useState(false); // Trạng thái của Switch
