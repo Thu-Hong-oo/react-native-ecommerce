@@ -1,7 +1,7 @@
 // src/services/firestoreService.js
 
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../config/firebaseConfig";
+import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { db, auth } from "../config/firebaseConfig";
 
 // Hàm lấy dữ liệu người dùng từ Firestore
 export async function fetchUserData(userId) {

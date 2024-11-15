@@ -14,6 +14,7 @@ const categories = [
     count: "208 Products",
     image:
       "https://images.pexels.com/photos/235294/pexels-photo-235294.jpeg?auto=compress&cs=tinysrgb&w=400",
+    screen: "Fresh Fruits",
   },
   {
     title: "Clothes",
@@ -38,12 +39,16 @@ const categories = [
     count: "150 Products",
     image:
       "https://images.pexels.com/photos/306763/pexels-photo-306763.jpeg?auto=compress&cs=tinysrgb&w=400",
+    screen: "Electronics",
   },
 ];
 
-export default function Category() {
+export default function Category({ navigation }) {
   const renderCategory = ({ item }) => (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate(item.screen)}
+    >
       <Image source={item.image} style={styles.image} />
       <View style={styles.overlay}>
         <Text style={styles.title}>{item.title}</Text>

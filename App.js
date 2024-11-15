@@ -7,24 +7,25 @@ import { Ionicons } from "@expo/vector-icons";
 import { Provider, useSelector } from "react-redux"; // Sử dụng useSelector
 import store from "./redux/store"; // Import store
 import "@expo/metro-runtime";
+import COLORS from "./components/Colors";
 
 import Home from "./screens/Home";
 import Search from "./screens/Search";
 import SignIn from "./screens/SignIn";
 import SignUp from "./screens/SignUp";
 import ForgotPassword from "./screens/ForgotPassword";
-
+import Notification from "./screens/Notification";
+import DetailProduct from "./screens/DetailProduct";
 import Screen01 from "./screens/Screen01";
 import Screen02 from "./screens/Screen02";
 import Screen03 from "./screens/Screen03";
 import Screen04 from "./screens/Screen04";
-import Screen05 from "./screens/Screen05";
+
 import Screen06 from "./screens/Screen06";
 import Screen07 from "./screens/Screen07";
 import Screen08 from "./screens/Screen08";
 import Screen09 from "./screens/Screen09";
 import Screen10 from "./screens/Screen10";
-import COLORS from "./components/Colors";
 
 // Tạo các navigator
 const Tab = createBottomTabNavigator();
@@ -55,8 +56,9 @@ function HomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="Screen01" component={Screen01} />
+      <Stack.Screen name="DetailProduct" component={DetailProduct} />
       <Stack.Screen name="Electronics" component={Screen02} />
+      <Stack.Screen name="Fresh Fruits" component={Screen03} />
       <Stack.Screen name="Search" component={Search} />
     </Stack.Navigator>
   );
@@ -102,6 +104,8 @@ function BottomTabs() {
             iconName = focused ? "cart" : "cart-outline";
           } else if (route.name === "FavoriteTab") {
             iconName = focused ? "heart" : "heart-outline";
+          } else if (route.name === "NotificationTab") {
+            iconName = focused ? "notifications" : "notifications-outline";
           } else if (route.name === "ProfileTab") {
             iconName = focused ? "person-circle" : "person-circle-outline";
           }
@@ -128,6 +132,11 @@ function BottomTabs() {
         options={{ title: "Favorite" }}
       />
       <Tab.Screen
+        name="NotificationTab"
+        component={Notification}
+        options={{ title: "Notification" }}
+      />
+      <Tab.Screen
         name="ProfileTab"
         component={ProfileStack}
         options={{ title: "My Profile" }}
@@ -141,6 +150,7 @@ export default function App() {
     <Provider store={store}>
       <NavigationContainer>
         <RootNavigator /> {/* Chạy RootNavigator để điều hướng ứng dụng */}
+        {/*<BottomTabs />*/}
       </NavigationContainer>
     </Provider>
   );

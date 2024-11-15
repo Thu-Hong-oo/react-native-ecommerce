@@ -12,6 +12,7 @@ import {
   Button,
 } from "react-native";
 import { Icon, Rating, Switch } from "react-native-elements";
+import AntDesign from "react-native-vector-icons/AntDesign";
 import COLORS from "../components/Colors";
 import { useState } from "react";
 import ProductRating from "../components/ProductRating";
@@ -96,8 +97,7 @@ export default function Screen05({ navigation }) {
         }}
       >
         <View style={{ flexDirection: "row" }}>
-          {" "}
-          <Icon name="star" color={COLORS.yellow} size={20} />{" "}
+          <Icon name="star" color={COLORS.yellow} size={20} />
           <Text>{item.rating}</Text>
         </View>
 
@@ -110,14 +110,19 @@ export default function Screen05({ navigation }) {
       <View style={styles.header}>
         <View style={styles.row}>
           <View style={styles.itemLeft}>
-            <Pressable>
-              <Icon name="left" type="antdesign" size={20} color="gray" />
+            <Pressable onPress={() => navigation.goBack()}>
+              <Icon
+                name="chevron-left"
+                type="fontawesome"
+                size={35}
+                color="#555"
+              />
             </Pressable>
             <Text style={styles.alldeals}>Headphone</Text>
           </View>
 
           <View style={styles.itemRight}>
-            <Icon name="cart-outline" type="ionicon" size={20} color="gray" />
+            <AntDesign name="shoppingcart" size={25} color={COLORS.primary} />
             <Image
               source={require("../assets/imgs/avata.png")}
               style={{ marginLeft: 10 }}
@@ -236,7 +241,11 @@ export default function Screen05({ navigation }) {
 
       <View style={styles.footer}>
         <View style={styles.btnCart}>
-          <Icon name="shoppingcart" type="antdesign" color="#FF6026" />
+          <Icon
+            name="add-shopping-cart"
+            type="materialIcons"
+            color={COLORS.primary}
+          />
         </View>
         <TouchableOpacity style={styles.btnBuyNow}>
           <Text style={styles.textBuyNow}>Buy Now</Text>
@@ -300,10 +309,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 5,
     borderRadius: 5,
-    borderColor: "#FF6026",
+    borderColor: COLORS.primary,
   },
   btnBuyNow: {
-    backgroundColor: "#FF6026",
+    backgroundColor: COLORS.primary,
     paddingVertical: 10,
     flex: 1,
     marginLeft: 10,

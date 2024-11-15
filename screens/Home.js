@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import AntDesign from "react-native-vector-icons/AntDesign";
 import COLORS from "../components/Colors";
 import Carousel from "../components/Carousel";
 import Category from "../components/Category";
@@ -38,7 +39,7 @@ export default function Home({ navigation }) {
   const renderProduct = ({ item }) => (
     <TouchableOpacity
       style={styles.itemContainer}
-      onPress={() => console.log(`Navigating to ${item.name}`)}
+      onPress={() => navigation.navigate("DetailProduct")}
     >
       <View style={styles.imageContainer}>
         <Image source={{ uri: item.mainImage }} style={styles.itemImage} />
@@ -68,10 +69,20 @@ export default function Home({ navigation }) {
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-            <Icon name="search" type="feather" size={20} color="black" />
+            <Icon
+              name="search"
+              type="feather"
+              size={20}
+              color={COLORS.primary}
+            />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconSpacing}>
-            <Icon name="bell" type="feather" size={20} color="black" />
+            <AntDesign
+              name="shoppingcart"
+              type="feather"
+              size={25}
+              color={COLORS.primary}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -111,7 +122,7 @@ export default function Home({ navigation }) {
         </>
       )}
 
-      {activeTab === "category" && <Category />}
+      {activeTab === "category" && <Category navigation={navigation} />}
     </View>
   );
 }
