@@ -27,7 +27,6 @@ import Screen08 from "./screens/Screen08";
 import Screen09 from "./screens/Screen09";
 import Screen10 from "./screens/Screen10";
 
-// Tạo các navigator
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 

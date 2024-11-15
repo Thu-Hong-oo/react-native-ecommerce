@@ -14,8 +14,11 @@ import Carousel from "../components/Carousel";
 import Category from "../components/Category";
 import { app } from "../config/firebaseConfig";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
-import { useSelector } from "react-redux"; // Import useSelector
+import { useSelector, useDispatch } from "react-redux"; // Import useSelector
+import { setSelectedProduct } from "../redux/slices/productSlice";
+
 export default function Home({ navigation }) {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user); // Lấy thông tin người dùng từ Redux store
 
   if (!user) {
@@ -39,7 +42,10 @@ export default function Home({ navigation }) {
   const renderProduct = ({ item }) => (
     <TouchableOpacity
       style={styles.itemContainer}
-      onPress={() => navigation.navigate("DetailProduct")}
+      onPress={() => {
+        dispatch(setSelectedProduct(item)); // Cập nhật sản phẩm đã chọn
+        navigation.navigate("DetailProduct"); // Điều hướng đến màn hình chi tiết
+      }}
     >
       <View style={styles.imageContainer}>
         <Image source={{ uri: item.mainImage }} style={styles.itemImage} />

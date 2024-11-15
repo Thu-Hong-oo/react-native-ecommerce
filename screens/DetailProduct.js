@@ -16,8 +16,12 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import COLORS from "../components/Colors";
 import { useState } from "react";
 import ProductRating from "../components/ProductRating";
+import { useSelector } from "react-redux";
+export default function DetailProduct({ navigation }) {
+  // Truy cập sản phẩm đã chọn từ Redux store
+  const selectedProduct = useSelector((state) => state.product.selectedProduct);
+  console.log(selectedProduct);
 
-export default function Screen05({ navigation }) {
   const [isEnabled, setIsEnabled] = useState(false); // Trạng thái của Switch
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
@@ -135,8 +139,8 @@ export default function Screen05({ navigation }) {
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.banner}>
             <Image
-              source={require("../assets/imgs/bannerHeadphone.png")}
-              style={{ resizeMode: "stretch", width: null }}
+              source={{ uri: selectedProduct.mainImage }}
+              style={{ width: "100%", height: 200, borderRadius: 10 }}
             />
           </View>
           <View style={styles.row}>
@@ -228,7 +232,7 @@ export default function Screen05({ navigation }) {
               type="fontisto"
               color="white"
               style={{
-                backgroundColor: COLORS.orange,
+                backgroundColor: COLORS.primary,
                 padding: 10,
                 borderRadius: 5,
               }}
