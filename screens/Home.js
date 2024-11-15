@@ -48,7 +48,11 @@ export default function Home({ navigation }) {
       }}
     >
       <View style={styles.imageContainer}>
-        <Image source={{ uri: item.mainImage }} style={styles.itemImage} />
+        <Image
+          source={{ uri: item.mainImage }}
+          style={styles.itemImage}
+          resizeMode="contain"
+        />
         <TouchableOpacity
           style={styles.heartIconContainer}
           onPress={() => console.log(`Liked ${item.name}`)}

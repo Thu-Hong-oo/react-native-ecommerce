@@ -122,7 +122,7 @@ export default function DetailProduct({ navigation }) {
                 color="#555"
               />
             </Pressable>
-            <Text style={styles.alldeals}>Headphone</Text>
+            <Text style={styles.alldeals}>{ selectedProduct.name}</Text>
           </View>
 
           <View style={styles.itemRight}>
@@ -140,11 +140,12 @@ export default function DetailProduct({ navigation }) {
           <View style={styles.banner}>
             <Image
               source={{ uri: selectedProduct.mainImage }}
-              style={{ width: "100%", height: 200, borderRadius: 10 }}
+              style={styles.productImage}
+              resizeMode="contain"
             />
           </View>
           <View style={styles.row}>
-            <Text style={{ fontWeight: "bold", fontSize: 20 }}>$59</Text>
+            <Text style={{ fontWeight: "bold", fontSize: 20 }}>${ selectedProduct.price}</Text>
             <View style={styles.row}>
               <Icon name="star" color="#F3C63F" />
               <Text style={{ fontWeight: "bold" }}>4.5</Text>
@@ -154,8 +155,7 @@ export default function DetailProduct({ navigation }) {
           <View style={styles.description}>
             <Text style={styles.boldText}>Description</Text>
             <Text style={styles.grayText}>
-              Quis occaecat magna elit magna do nisi ipsum amet excepteur tempor
-              nisi exercitation qui...
+              {selectedProduct.description}
             </Text>
 
             <View
@@ -296,8 +296,16 @@ const styles = StyleSheet.create({
   banner: {
     marginVertical: 10,
     borderRadius: 10,
-    backgroundColor: "green",
+
     marginHorizontal: 15,
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: 180, 
+  },
+  productImage: {
+    width: '100%', // Chiếm toàn bộ chiều rộng của container
+    height: '100%', // Chiếm toàn bộ chiều cao của container
+    borderRadius: 10,
   },
 
   footer: {
