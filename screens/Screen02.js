@@ -26,7 +26,7 @@ export default function Screen02({ navigation }) {
   }, []);
 
   const getProduct = async () => {
-    const querySnapshot = await getDocs(collection(db, "Product"));
+    const querySnapshot = await getDocs(collection(db, "Products"));
     const data = querySnapshot.docs
       .map((doc) => doc.data())
       .filter((product) => product.category === "Electronics"); // Lọc sản phẩm có category là Electronics

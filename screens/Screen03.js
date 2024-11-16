@@ -30,12 +30,13 @@ export default function Screen03() {
     getAllFreshFruit();
   }, []);
   const getAllFreshFruit = async () => {
-    const querySnapshot = await getDocs(collection(db, "Product"));
+    const querySnapshot = await getDocs(collection(db, "Products"));
     const data = querySnapshot.docs
       .map((doc) => doc.data())
-      .filter((product) => product.category === "fresh fruit"); // Lọc sản phẩm có category là Electronics
+      .filter((product) => product.category === "Fresh fruits");
     setAllFreshFruit(data); // Cập nhật sản phẩm vào state
   };
+  console.log(allFreshFruit);
 
   const filteredFreshFruit = allFreshFruit.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())

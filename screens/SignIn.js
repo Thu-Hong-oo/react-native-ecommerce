@@ -23,8 +23,8 @@ import {
 import { fetchUserData } from "../services/firestoreServices";
 const SignIn = ({ navigation }) => {
   const dispatch = useDispatch(); // Khởi tạo dispatch
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("thuhong05022003@gmail.com");
+  const [password, setPassword] = useState("password123");
 
   const handleLogin = async () => {
     try {
@@ -135,7 +135,7 @@ const SignIn = ({ navigation }) => {
             style={styles.input}
             placeholderTextColor="#7a7a7a"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={setPassword} 
           />
         </View>
 

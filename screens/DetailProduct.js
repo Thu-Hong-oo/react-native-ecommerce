@@ -5,26 +5,24 @@ import {
   Image,
   SafeAreaView,
   Pressable,
-  TextInput,
   ScrollView,
   FlatList,
   TouchableOpacity,
-  Button,
+  Switch,
 } from "react-native";
-import { Icon, Rating, Switch } from "react-native-elements";
+import { Icon } from "react-native-elements";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import COLORS from "../components/Colors";
 import { useState } from "react";
 import ProductRating from "../components/ProductRating";
 import { useSelector } from "react-redux";
+
 export default function DetailProduct({ navigation }) {
-  // Truy cập sản phẩm đã chọn từ Redux store
   const selectedProduct = useSelector((state) => state.product.selectedProduct);
   console.log(selectedProduct);
-
-  const [isEnabled, setIsEnabled] = useState(false); // Trạng thái của Switch
+  const user = useSelector((state) => state.user.user);
+  const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
-
   const [data, setData] = useState([
     {
       name: "Headphone",
@@ -57,58 +55,42 @@ export default function DetailProduct({ navigation }) {
       rating: 4.5,
     },
   ]);
+  // State để lưu ảnh chính và tên danh mục
+  const [mainImage, setMainImage] = useState(selectedProduct.mainImage);
+  const [currentCategory, setCurrentCategory] = useState(
+    `${selectedProduct.subImages.length} available categories`
+  );
+
+  const handleSubImagePress = (item) => {
+    setMainImage(item.img); // Cập nhật ảnh chính
+    setCurrentCategory(item.name); // Cập nhật tên danh mục
+  };
+
   const renderRelevant = ({ item }) => (
-    <View
-      style={{
-        width: 130,
-        height: 180,
-        margin: 10,
-        flex: 1,
-        backgroundColor: COLORS.gray,
-        borderRadius: 10,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: COLORS.gray,
-          width: "100%",
-          height: 120,
-          borderRadius: 10,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Image source={item.img} style={{ width: 120, height: 120 }} />
+    <View style={styles.relevantItem}>
+      <View style={styles.relevantImageContainer}>
+        <Image source={item.img} style={styles.relevantImage} />
       </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: 8,
-          marginHorizontal: 10,
-        }}
-      >
-        <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: 5,
-          marginHorizontal: 10,
-        }}
-      >
-        <View style={{ flexDirection: "row" }}>
+      <View style={styles.relevantInfo}>
+        <Text style={styles.relevantName}>{item.name}</Text>
+        <View style={styles.relevantPriceContainer}>
           <Icon name="star" color={COLORS.yellow} size={20} />
           <Text>{item.rating}</Text>
+          <Text style={styles.relevantPrice}>${item.price}</Text>
         </View>
-
-        <Text style={{ fontWeight: "bold" }}>${item.price}</Text>
       </View>
     </View>
   );
+
+  const renderSubImages = ({ item }) => (
+    <Pressable
+      onPress={() => handleSubImagePress(item)}
+      style={styles.subImageContainer}
+    >
+      <Image source={{ uri: item.img }} style={styles.subImage} />
+    </Pressable>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -122,15 +104,10 @@ export default function DetailProduct({ navigation }) {
                 color="#555"
               />
             </Pressable>
-            <Text style={styles.alldeals}>{ selectedProduct.name}</Text>
           </View>
-
           <View style={styles.itemRight}>
             <AntDesign name="shoppingcart" size={25} color={COLORS.primary} />
-            <Image
-              source={require("../assets/imgs/avata.png")}
-              style={{ marginLeft: 10 }}
-            />
+            <Image source={user.avatar} style={styles.userImage} />
           </View>
         </View>
       </View>
@@ -139,35 +116,38 @@ export default function DetailProduct({ navigation }) {
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.banner}>
             <Image
-              source={{ uri: selectedProduct.mainImage }}
+              source={{ uri: mainImage }}
               style={styles.productImage}
               resizeMode="contain"
             />
           </View>
+          {selectedProduct.subImages &&
+            selectedProduct.subImages.length > 1 && (
+              <View style={styles.subImageList}>
+                <Text>{currentCategory}</Text>
+                <FlatList
+                  data={selectedProduct.subImages}
+                  renderItem={renderSubImages}
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item, index) => index.toString()}
+                />
+              </View>
+            )}
+          <Text style={styles.nameProduct}>{selectedProduct.name}</Text>
           <View style={styles.row}>
-            <Text style={{ fontWeight: "bold", fontSize: 20 }}>${ selectedProduct.price}</Text>
+            <Text style={styles.productPrice}>${selectedProduct.price}</Text>
             <View style={styles.row}>
-              <Icon name="star" color="#F3C63F" />
-              <Text style={{ fontWeight: "bold" }}>4.5</Text>
+              <Icon name="star" color="#F3C63F" /> 
+              <Text style={styles.ratingText}>{selectedProduct.rating}</Text>
               <Text>(99 reviews)</Text>
             </View>
           </View>
           <View style={styles.description}>
             <Text style={styles.boldText}>Description</Text>
-            <Text style={styles.grayText}>
-              {selectedProduct.description}
-            </Text>
-
-            <View
-              style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 20 }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  width: "50%",
-                  marginBottom: 20,
-                }}
-              >
+            <Text style={styles.grayText}>{selectedProduct.description}</Text>
+            <View style={styles.featuresContainer}>
+              <View style={styles.featureItem}>
                 <Icon
                   name="truck-outline"
                   type="material-community"
@@ -176,7 +156,7 @@ export default function DetailProduct({ navigation }) {
                 />
                 <Text style={styles.grayText}>Express</Text>
               </View>
-              <View style={{ flexDirection: "row", width: "50%" }}>
+              <View style={styles.featureItem}>
                 <Icon
                   name="back"
                   type="antdesign"
@@ -185,11 +165,11 @@ export default function DetailProduct({ navigation }) {
                 />
                 <Text style={styles.grayText}>30-day free return</Text>
               </View>
-              <View style={{ flexDirection: "row", width: "50%" }}>
+              <View style={styles.featureItem}>
                 <Icon name="star" color={COLORS.orange} size={20} />
                 <Text style={styles.grayText}>Good review</Text>
               </View>
-              <View style={{ flexDirection: "row", width: "50%" }}>
+              <View style={styles.featureItem}>
                 <Icon
                   name="award"
                   type="feather"
@@ -206,7 +186,7 @@ export default function DetailProduct({ navigation }) {
           <View style={styles.relevantProduct}>
             <View style={styles.row}>
               <Text style={styles.boldText}>Categories</Text>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View style={styles.seeAllContainer}>
                 <Text>See all</Text>
                 <Icon
                   name="triangle-right"
@@ -216,26 +196,19 @@ export default function DetailProduct({ navigation }) {
                 />
               </View>
             </View>
-            <View>
-              <FlatList
-                data={data}
-                renderItem={renderRelevant}
-                horizontal={true}
-                showsVerticalScrollIndicator={false}
-              />
-            </View>
+            <FlatList
+              data={data}
+              renderItem={renderRelevant}
+              horizontal={true}
+              showsVerticalScrollIndicator={false}
+            />
           </View>
-
           <View style={styles.notify}>
             <Icon
               name="bell"
               type="fontisto"
               color="white"
-              style={{
-                backgroundColor: COLORS.primary,
-                padding: 10,
-                borderRadius: 5,
-              }}
+              style={styles.notifyIcon}
             />
             <Text>Notify me of promotions</Text>
             <Switch onValueChange={toggleSwitch} value={isEnabled} />
@@ -282,32 +255,45 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  alldeals: {
-    paddingHorizontal: 10,
-    fontSize: 16,
-    fontWeight: "bold",
+  userImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 8,
   },
-
+  nameProduct: {
+    paddingHorizontal: 15,
+    fontSize: 25,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
   body: {
     flex: 1,
-    marginTop: 10,
   },
-
   banner: {
-    marginVertical: 10,
     borderRadius: 10,
-
     marginHorizontal: 15,
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    height: 180, 
+    justifyContent: "center",
+    alignItems: "center",
+    height: 180,
   },
   productImage: {
-    width: '100%', // Chiếm toàn bộ chiều rộng của container
-    height: '100%', // Chiếm toàn bộ chiều cao của container
+    width: "100%",
+    height: "100%",
     borderRadius: 10,
   },
-
+  subImageList: {
+    marginVertical: 10,
+    marginHorizontal: 15,
+  },
+  subImageContainer: {
+    marginRight: 10,
+  },
+  subImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+  },
   footer: {
     paddingVertical: 10,
     borderTopWidth: 1,
@@ -365,6 +351,72 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gray,
     marginHorizontal: 15,
     marginBottom: 20,
+    alignItems: "center",
+  },
+  notifyIcon: {
+    backgroundColor: COLORS.primary,
+    padding: 10,
+    borderRadius: 5,
+  },
+  relevantItem: {
+    width: 130,
+    height: 180,
+    margin: 10,
+    flex: 1,
+    backgroundColor: COLORS.gray,
+    borderRadius: 10,
+  },
+  relevantImageContainer: {
+    backgroundColor: COLORS.gray,
+    width: "100%",
+    height: 120,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  relevantImage: {
+    width: 120,
+    height: 120,
+  },
+  relevantInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+    marginHorizontal: 10,
+  },
+  relevantName: {
+    fontWeight: "bold",
+  },
+  relevantPriceContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 5,
+    marginHorizontal: 10,
+  },
+  relevantPrice: {
+    fontWeight: "bold",
+  },
+  productPrice: {
+    fontWeight: "bold",
+    fontSize: 20,
+  },
+  ratingText: {
+    fontWeight: "bold",
+  },
+  featuresContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 20,
+  },
+  featureItem: {
+    flexDirection: "row",
+    width: "50%",
+    marginBottom: 20,
+  },
+  seeAllContainer: {
+    flexDirection: "row",
     alignItems: "center",
   },
 });

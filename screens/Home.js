@@ -13,7 +13,13 @@ import COLORS from "../components/Colors";
 import Carousel from "../components/Carousel";
 import Category from "../components/Category";
 import { app } from "../config/firebaseConfig";
-import { collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux"; // Import useSelector
 import { setSelectedProduct } from "../redux/slices/productSlice";
 
@@ -34,9 +40,20 @@ export default function Home({ navigation }) {
   }, []);
 
   const getProduct = async () => {
-    const querySnapshot = await getDocs(collection(db, "Product"));
-    const data = querySnapshot.docs.map((doc) => doc.data());
-    setProducts(data);
+    try {
+      const productQuery = query(
+        collection(db, "Products"),
+        orderBy("createdAt", "desc") // Sắp xếp theo createdAt giảm dần
+      );
+      const querySnapshot = await getDocs(productQuery); // Lấy dữ liệu từ Firestore
+      const data = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })); // Thêm id vào mỗi sản phẩm
+      setProducts(data); // Cập nhật state với dữ liệu sản phẩm
+    } catch (error) {
+      console.error("Lỗi khi lấy sản phẩm: ", error); // Xử lý lỗi
+    }
   };
 
   const renderProduct = ({ item }) => (
@@ -62,7 +79,7 @@ export default function Home({ navigation }) {
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemPrice}>{item.price}</Text>
+        <Text style={styles.itemPrice}>{item.price}$</Text>
       </View>
     </TouchableOpacity>
   );
@@ -229,7 +246,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: "relative",
     width: "100%",
-    height: 120,
+    height: 100,
   },
   itemImage: {
     width: "100%",

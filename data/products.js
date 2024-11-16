@@ -16,43 +16,47 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
 
-// Get a reference to the collection
-const collectionRef = db.collection("Product");
+// Get a reference to the "Product" collection
+const collectionRef = db.collection("Products");
 
-// Define the data for the documents
-const dataArray = [
-  {
+const addManualProduct = () => {
+  const product = {
+    name: "ZTE Nubia V60 Design 6GB 256GB",
+    description: "The ZTE Nubia V60 Design is the perfect choice for users looking for a powerful smartphone with an exquisite design and outstanding performance but at an extremely affordable price.",
+    price: 150,
+    quantity: 100,
     category: "Electronics",
-    color: ["black", "white", "blue"],
-    description: "Latest iPhone with advanced features.",
-    mainImage:
-      "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/2023_9_20_638307980220145280_iphone-15-promax-den-1.jpg",
-    name: "iPhone 16",
-    price: 800,
-    quantity: 50,
-    subImages: [
-      "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/2023_9_20_638307982103040290_iphone-15-promax-trang-1.jpg",
-      "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/2023_9_20_638307989548944936_iphone-15-promax-xanh-1.jpg",
-    ],
     type: "Smartphone",
-  },
-];
+    rating: "5",
+    mainImage:
+      "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/zte_nubia_v60_den_3_43ecfc9a7e.jpg",
+    subImages: [
+      {
+        name: "Green",
+        img: "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/zte_nubia_v60_den_3_43ecfc9a7e.jpg",
+      },
+      {
+        name: "Yellow",
+        img: "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/zte_nubia_v60_vang_3_7a77e0762b.jpg",
+      },
+      {
+        name: "Purple",
+        img: "https://cdn2.fptshop.com.vn/unsafe/750x0/filters:quality(100)/zte_nubia_v60_tim_2_b27f760051.jpg",
+      },
+    ],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Thêm timestamp
+  };
 
-// Create a batch write operation
-const batch = firebase.firestore().batch();
+  const docRef = collectionRef.doc("ES000004"); // Tạo document với ID
+  docRef
+    .set(product)
+    .then(() => {
+      console.log("Sản phẩm đã được thêm vào Firestore");
+    })
+    .catch((error) => {
+      console.error("Lỗi khi thêm sản phẩm: ", error);
+    });
+};
 
-// Loop through the data array and add each document to the batch
-dataArray.forEach((data) => {
-  const docRef = collectionRef.doc(); // Create a new document reference with a unique ID
-  batch.set(docRef, data); // Add the data to the batch for this document reference
-});
-
-// Commit the batch write operation
-batch
-  .commit()
-  .then(() => {
-    console.log("Batch write operation completed");
-  })
-  .catch((error) => {
-    console.error("Batch write operation failed: ", error);
-  });
+// Gọi hàm để thêm sản phẩm thủ công
+addManualProduct();
