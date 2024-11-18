@@ -46,14 +46,18 @@ export const removeFromCart = createAsyncThunk(
   }
 );
 
-// Update Item Quantity
 export const updateCartItemQuantity = createAsyncThunk(
   "cart/updateCartItemQuantity",
-  async ({ userId, itemId, quantity }, { rejectWithValue }) => {
+  async ({ firestoreId, quantity, userId }, { rejectWithValue }) => {
     try {
-      return await updateCartItemQuantityInService(userId, itemId, quantity);
+      const response = await updateCartItemQuantityInService(
+        firestoreId,
+        quantity,
+        userId
+      );
+      return response; // Giả sử bạn trả về thông tin cập nhật của item hoặc response từ service
     } catch (error) {
-      return rejectWithValue(error.message); // Trả lỗi rõ ràng để hiển thị
+      return rejectWithValue(error.message); // Trả về lỗi nếu có
     }
   }
 );
@@ -84,6 +88,11 @@ const cartSlice = createSlice({
       .addCase(fetchCartItems.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items = action.payload;
+        // Tính toán lại tổng giá trị sau khi lấy sản phẩm
+        state.totalPrice = state.items.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        );
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.status = "failed";
@@ -97,6 +106,11 @@ const cartSlice = createSlice({
       .addCase(addToCart.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items.push(action.payload);
+        // Tính toán lại tổng giá trị sau khi thêm sản phẩm
+        state.totalPrice = state.items.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        );
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.status = "failed";
@@ -110,6 +124,11 @@ const cartSlice = createSlice({
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items = state.items.filter((item) => item.id !== action.payload);
+        // Tính toán lại tổng giá trị sau khi xóa sản phẩm
+        state.totalPrice = state.items.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        );
       })
       .addCase(removeFromCart.rejected, (state, action) => {
         state.status = "failed";
@@ -121,17 +140,28 @@ const cartSlice = createSlice({
         state.status = "loading";
       })
       .addCase(updateCartItemQuantity.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        const { itemId, quantity } = action.payload; // Lấy itemId và quantity từ payload
-        const item = state.items.find((item) => item.id === itemId);
-        if (item) {
-          item.quantity = quantity; // Cập nhật số lượng
-        }
-      })
+        const { firestoreId, quantity } = action.payload;
 
+        const itemIndex = state.items.findIndex(
+          (item) => item.firestoreId === firestoreId
+        );
+
+        if (itemIndex === -1) {
+          console.error(`Item with firestoreId ${firestoreId} not found`);
+          return;
+        }
+
+        state.items[itemIndex].quantity = quantity;
+
+        // Tính toán lại tổng giá trị của giỏ hàng
+        state.totalPrice = state.items.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        );
+      })
       .addCase(updateCartItemQuantity.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
+        state.error = action.payload; // Log error for debugging
       });
   },
 });

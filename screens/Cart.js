@@ -6,20 +6,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  CheckBox,
-  Pressable,
-  ActivityIndicator,
   FlatList,
+  Pressable,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import COLORS from "../components/Colors";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchCartItems,
-  addToCart,
   removeFromCart,
   updateCartItemQuantity,
-  calculateTotalPrice,
 } from "../redux/slices/cartSlice";
 
 const CartRender = ({ item, handleUpdateQuantity }) => {
@@ -27,21 +23,21 @@ const CartRender = ({ item, handleUpdateQuantity }) => {
 
   const handleIncrease = () => {
     const newQuantity = quantity + 1;
-    setQuantity(newQuantity); //cập nhật giao diện
-    handleUpdateQuantity(item.id, newQuantity); // Cập nhật số lượng trong Redux và firebase
+    setQuantity(newQuantity); // Update local state
+    handleUpdateQuantity(item.firestoreId, newQuantity); // Update quantity in Redux and Firestore
   };
+
   const handleDecrease = () => {
     if (quantity > 1) {
       const newQuantity = quantity - 1;
       setQuantity(newQuantity);
-      handleUpdateQuantity(item.id, newQuantity);
+      handleUpdateQuantity(item.firestoreId, newQuantity);
     }
   };
 
   return (
     <View style={styles.cartItem}>
       <View style={styles.cartItemLeft}>
-        <CheckBox style={styles.checkbox} />
         <Image source={{ uri: item.img }} style={styles.image} />
         <View style={styles.itemDetails}>
           <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
@@ -72,41 +68,54 @@ const CartRender = ({ item, handleUpdateQuantity }) => {
 
 export default function Cart({ navigation }) {
   const user = useSelector((state) => state.user.user);
-  const userId = user.id;
-  const { items, totalPrice, status } = useSelector((state) => state.cart);
+  const userId = user?.id; // Use optional chaining to safely access userId
+  const { items, totalPrice } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
-  const calculatedTotalPrice = items.reduce(
-    (total, item) => total + item.price * (item.quantity || 1),
-    0
-  );
 
   useEffect(() => {
-    dispatch(fetchCartItems(userId));
+    if (userId) {
+      dispatch(fetchCartItems(userId)); // Fetch cart items when userId changes
+    }
   }, [dispatch, userId]);
 
-  const handleAddItem = (item) => {
-    dispatch(addToCart({ userId, item }));
-  };
-
-  const handleRemoveItem = (itemId) => {
-    dispatch(removeFromCart({ userId, itemId }));
-  };
-
-  const handleUpdateQuantity = async (itemId, newQuantity) => {
-    if (!itemId) {
-      console.error("Item ID is required");
+  const handleUpdateQuantity = (firestoreId, newQuantity) => {
+    // Kiểm tra userId có tồn tại
+    if (!userId) {
+      console.error("User ID is not defined");
+      return;
+    }
+    // Kiểm tra firestoreId
+    if (!firestoreId) {
+      console.error("Firestore ID is required");
       return;
     }
 
-    dispatch(updateCartItemQuantity({ userId, itemId, quantity: newQuantity }))
+    console.log(
+      "Updating quantity for Firestore ID:",
+      firestoreId,
+      "to",
+      newQuantity
+    );
+
+    // Gọi action để cập nhật số lượng
+    dispatch(
+      updateCartItemQuantity({ firestoreId, quantity: newQuantity, userId })
+    )
       .unwrap()
-      .then(() => console.log("Quantity updated successfully"))
-      .catch((err) => console.error("Failed to update quantity:", err));
+      .then(() => {
+        console.log("Quantity updated successfully");
+      })
+      .catch((err) => {
+        console.error("Failed to update quantity:", err);
+      });
   };
 
-  useEffect(() => {
-    dispatch(calculateTotalPrice());
-  }, [items, dispatch]);
+  const handleRemoveItem = (firestoreId) => {
+    dispatch(removeFromCart({ userId, firestoreId }))
+      .unwrap()
+      .then(() => console.log("Item removed successfully"))
+      .catch((err) => console.error("Failed to remove item:", err));
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -120,11 +129,11 @@ export default function Cart({ navigation }) {
 
       <FlatList
         data={items}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.firestoreId} // Use firestoreId as key
         renderItem={({ item }) => (
           <CartRender
             item={item}
-            handleUpdateQuantity={handleUpdateQuantity} // Sử dụng hàm cha
+            handleUpdateQuantity={handleUpdateQuantity} // Pass update function
           />
         )}
         contentContainerStyle={styles.cartList}
@@ -133,12 +142,12 @@ export default function Cart({ navigation }) {
       <View style={styles.summary}>
         <Text style={styles.summaryText}>Total:</Text>
         <Text style={styles.summaryPrice}>
-          ${calculatedTotalPrice.toFixed(2)}
+          ${totalPrice.toFixed(2)} {/* Use totalPrice from Redux */}
         </Text>
       </View>
 
       <TouchableOpacity style={styles.checkoutButton}>
-        <Text style={styles.checkoutText}>Proceed to Checkout</Text>
+        <Text style={styles.checkoutText}>Proceed to Checkout </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -170,7 +179,7 @@ const styles = StyleSheet.create({
   cartItemLeft: {
     flexDirection: "row",
     alignItems: "center",
-    flex: 1, // Đảm bảo rằng phần này chiếm không gian còn lại
+    flex: 1,
   },
   itemDetails: {
     flex: 1,
@@ -179,17 +188,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 14,
     fontWeight: "bold",
-    overflow: "hidden", // Đảm bảo rằng văn bản không tràn ra ngoài
   },
   price: {
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "right",
-
-    marginLeft: 10, // Thêm khoảng cách giữa tên và giá
-  },
-  checkbox: {
-    marginRight: 8,
+    marginLeft: 10,
   },
   image: {
     width: 64,
@@ -197,7 +201,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 8,
   },
-
   colorText: {
     fontSize: 12,
     color: "gray",
@@ -217,21 +220,6 @@ const styles = StyleSheet.create({
   quantity: {
     marginHorizontal: 8,
     fontSize: 14,
-  },
-
-  loader: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  error: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorText: {
-    fontSize: 16,
-    color: "red",
   },
   summary: {
     flexDirection: "row",
