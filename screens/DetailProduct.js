@@ -16,6 +16,7 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import COLORS from "../components/Colors";
 import ProductRating from "../components/ProductRating";
 import CartModal from "../components/ModalAddToCard";
+import CartIcon from "../components/CartIcon";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -117,9 +118,7 @@ export default function DetailProduct({ navigation }) {
             </Pressable>
           </View>
           <View style={styles.itemRight}>
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <AntDesign name="shoppingcart" size={25} color={COLORS.primary} />
-            </TouchableOpacity>
+            <CartIcon navigation={navigation} />
             <Image source={user.avatar} style={styles.userImage} />
           </View>
         </View>
@@ -297,7 +296,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginLeft: 8,
+    marginLeft: 15,
   },
   nameProduct: {
     paddingHorizontal: 15,

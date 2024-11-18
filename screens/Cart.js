@@ -167,6 +167,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
+    marginRight:20,
   },
   cartItem: {
     flexDirection: "row",

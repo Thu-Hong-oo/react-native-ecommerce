@@ -12,6 +12,7 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import COLORS from "../components/Colors";
 import Carousel from "../components/Carousel";
 import Category from "../components/Category";
+import CartIcon from "../components/CartIcon";
 import { app } from "../config/firebaseConfig";
 import {
   collection,
@@ -103,14 +104,7 @@ export default function Home({ navigation }) {
               color={COLORS.primary}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconSpacing} onPress={()=>navigation.navigate("Cart")}> 
-            <AntDesign
-              name="shoppingcart"
-              type="feather"
-              size={25}
-              color={COLORS.primary}
-            />
-          </TouchableOpacity>
+          <CartIcon navigation={navigation} />
         </View>
       </View>
 
@@ -187,9 +181,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  iconSpacing: {
-    marginLeft: 15,
-  },
+
   tabs: {
     flexDirection: "row",
     marginBottom: 16,
