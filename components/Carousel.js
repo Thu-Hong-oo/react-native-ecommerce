@@ -6,6 +6,7 @@ import {
   View,
   Dimensions,
   LogBox,
+
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import COLORS from "./Colors";

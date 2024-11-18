@@ -21,33 +21,39 @@ const collectionRef = db.collection("Products");
 
 const addManualProduct = () => {
   const product = {
-    name: "ZTE Nubia V60 Design 6GB 256GB",
-    description: "The ZTE Nubia V60 Design is the perfect choice for users looking for a powerful smartphone with an exquisite design and outstanding performance but at an extremely affordable price.",
-    price: 150,
+    name: "Simpson Local Brand Streetwear Oversize Sports T-Shirt - TS10",
+    description:
+      "SIMPSON ® Sportswear T-Shirt Material: Premium Cotton 100%. Size: M / L / XL. Anti-crack embossed silk screen printing, high adhesion",
+    price: 10,
     quantity: 100,
-    category: "Electronics",
-    type: "Smartphone",
-    rating: "5",
+    category: "Clothes",
+    type: "T-shirt",
+    rating: "4.8",
     mainImage:
-      "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/zte_nubia_v60_den_3_43ecfc9a7e.jpg",
+      "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtd9ts9d4nv6d.webp",
     subImages: [
       {
-        name: "Green",
-        img: "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/zte_nubia_v60_den_3_43ecfc9a7e.jpg",
+        name: "Black",
+        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtd9ts9d4nv6d.webp",
       },
       {
-        name: "Yellow",
-        img: "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/zte_nubia_v60_vang_3_7a77e0762b.jpg",
+        name: "Red",
+        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-loiihga4i1gz96.webp",
       },
       {
-        name: "Purple",
-        img: "https://cdn2.fptshop.com.vn/unsafe/750x0/filters:quality(100)/zte_nubia_v60_tim_2_b27f760051.jpg",
+        name: "Gray",
+        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lp4wevr8zg4b57.webp",
+      },
+      {
+        name: "White",
+        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtda508xy3dc6.webp",
       },
     ],
+    sizes: ["M(<58kg)", "L(<73kg)", "XL<90kg"],
     createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Thêm timestamp
   };
 
-  const docRef = collectionRef.doc("ES000004"); // Tạo document với ID
+  const docRef = collectionRef.doc("CT000002"); // Tạo document với ID
   docRef
     .set(product)
     .then(() => {

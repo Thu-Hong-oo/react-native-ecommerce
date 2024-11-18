@@ -9,12 +9,14 @@ import {
   FlatList,
   TouchableOpacity,
   Switch,
+  Modal,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import COLORS from "../components/Colors";
-import { useState } from "react";
 import ProductRating from "../components/ProductRating";
+import CartModal from "../components/ModalAddToCard";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function DetailProduct({ navigation }) {
@@ -23,6 +25,8 @@ export default function DetailProduct({ navigation }) {
   const user = useSelector((state) => state.user.user);
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const [data, setData] = useState([
     {
       name: "Headphone",
@@ -65,19 +69,26 @@ export default function DetailProduct({ navigation }) {
     setMainImage(item.img); // Cập nhật ảnh chính
     setCurrentCategory(item.name); // Cập nhật tên danh mục
   };
+  const handleAddToCart = () => {
+    // Logic to add to cart can go here
+    console.log(
+      `Added to cart: Size - ${selectedSize}, Color - ${selectedColor}`
+    );
+    setModalVisible(false); // Close modal after adding to cart
+  };
 
   const renderRelevant = ({ item }) => (
     <View style={styles.relevantItem}>
       <View style={styles.relevantImageContainer}>
         <Image source={item.img} style={styles.relevantImage} />
       </View>
+      <Text style={styles.relevantName}>{item.name}</Text>
       <View style={styles.relevantInfo}>
-        <Text style={styles.relevantName}>{item.name}</Text>
         <View style={styles.relevantPriceContainer}>
           <Icon name="star" color={COLORS.yellow} size={20} />
           <Text>{item.rating}</Text>
-          <Text style={styles.relevantPrice}>${item.price}</Text>
         </View>
+        <Text style={styles.relevantPrice}>${item.price}</Text>
       </View>
     </View>
   );
@@ -138,11 +149,29 @@ export default function DetailProduct({ navigation }) {
           <View style={styles.row}>
             <Text style={styles.productPrice}>${selectedProduct.price}</Text>
             <View style={styles.row}>
-              <Icon name="star" color="#F3C63F" /> 
+              <Icon name="star" color="#F3C63F" />
               <Text style={styles.ratingText}>{selectedProduct.rating}</Text>
               <Text>(99 reviews)</Text>
             </View>
           </View>
+
+          {/* {selectedProduct.sizes && (
+            <View>
+              <Text style={styles.size}>Size</Text>
+              <View style={styles.sizeContainer}>
+                {selectedProduct.sizes.map((size, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.sizeButton}
+                    onPress={() => console.log(`Selected size: ${size}`)}
+                  >
+                    <Text style={styles.sizeText}>{size}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )} */}
+
           <View style={styles.description}>
             <Text style={styles.boldText}>Description</Text>
             <Text style={styles.grayText}>{selectedProduct.description}</Text>
@@ -215,14 +244,21 @@ export default function DetailProduct({ navigation }) {
           </View>
         </ScrollView>
       </View>
+      {/* Sử dụng CartModal */}
+      <CartModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)} // Đóng modal khi nhấn nút đóng
+      />
 
       <View style={styles.footer}>
         <View style={styles.btnCart}>
-          <Icon
-            name="add-shopping-cart"
-            type="materialIcons"
-            color={COLORS.primary}
-          />
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Icon
+              name="add-shopping-cart"
+              type="materialIcons"
+              color={COLORS.primary}
+            />
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.btnBuyNow}>
           <Text style={styles.textBuyNow}>Buy Now</Text>
@@ -263,9 +299,9 @@ const styles = StyleSheet.create({
   },
   nameProduct: {
     paddingHorizontal: 15,
-    fontSize: 25,
-    fontWeight: "bold",
-    marginBottom: 10,
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 5,
   },
   body: {
     flex: 1,
@@ -275,7 +311,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     justifyContent: "center",
     alignItems: "center",
-    height: 180,
+    height: 200,
   },
   productImage: {
     width: "100%",
@@ -283,7 +319,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   subImageList: {
-    marginVertical: 10,
     marginHorizontal: 15,
   },
   subImageContainer: {
@@ -359,7 +394,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   relevantItem: {
-    width: 130,
+    width: 150,
     height: 180,
     margin: 10,
     flex: 1,
@@ -387,13 +422,12 @@ const styles = StyleSheet.create({
   },
   relevantName: {
     fontWeight: "bold",
+    marginLeft: 10,
   },
   relevantPriceContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 5,
-    marginHorizontal: 10,
   },
   relevantPrice: {
     fontWeight: "bold",
@@ -401,6 +435,7 @@ const styles = StyleSheet.create({
   productPrice: {
     fontWeight: "bold",
     fontSize: 20,
+    color: COLORS.red,
   },
   ratingText: {
     fontWeight: "bold",

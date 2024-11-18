@@ -231,14 +231,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   itemContainer: {
-    flex: 1,
+    width: "48%",
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
     padding: 8,
     marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.4,
     shadowRadius: 2,
     elevation: 2,
     alignItems: "center",
@@ -252,14 +252,13 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 8,
-    backgroundColor: COLORS.gray,
   },
   heartIconContainer: {
     position: "absolute",
-    top: 8,
-    right: 8,
+    top: 3,
+    right: 3,
     borderRadius: 20,
-    padding: 4,
+    padding: 2,
   },
   textContainer: {
     alignItems: "center",
@@ -267,7 +266,7 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
     textAlign: "center",
   },
   itemPrice: {
@@ -275,5 +274,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginTop: 4,
     textAlign: "center",
+    color: "red",
   },
 });
