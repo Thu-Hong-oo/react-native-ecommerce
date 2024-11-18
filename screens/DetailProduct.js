@@ -117,7 +117,9 @@ export default function DetailProduct({ navigation }) {
             </Pressable>
           </View>
           <View style={styles.itemRight}>
-            <AntDesign name="shoppingcart" size={25} color={COLORS.primary} />
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+              <AntDesign name="shoppingcart" size={25} color={COLORS.primary} />
+            </TouchableOpacity>
             <Image source={user.avatar} style={styles.userImage} />
           </View>
         </View>

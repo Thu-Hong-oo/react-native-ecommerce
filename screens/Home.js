@@ -103,7 +103,7 @@ export default function Home({ navigation }) {
               color={COLORS.primary}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconSpacing}>
+          <TouchableOpacity style={styles.iconSpacing} onPress={()=>navigation.navigate("Cart")}> 
             <AntDesign
               name="shoppingcart"
               type="feather"

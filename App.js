@@ -27,7 +27,7 @@ import Screen08 from "./screens/Screen08";
 import Screen09 from "./screens/Screen09";
 import Screen10 from "./screens/Screen10";
 
-import Modal from "./components/ModalAddToCard";
+import Cart from "./screens/Cart";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -61,7 +61,7 @@ function HomeStack() {
       <Stack.Screen name="Electronics" component={Screen02} />
       <Stack.Screen name="Fresh Fruits" component={Screen03} />
       <Stack.Screen name="Search" component={Search} />
-      <Stack.Screen name="Modal" component={Modal} />
+      <Stack.Screen name="Cart" component={Cart} />
     </Stack.Navigator>
   );
 }

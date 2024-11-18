@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,34 +9,76 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons"; // Icon library
-import COLORS from "./Colors";
-import { useSelector } from "react-redux";
+import COLORS from "../components/Colors";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  addToCart,
+  removeFromCart,
+  increaseQuantity,
+  decreaseQuantity,
+} from "../redux/slices/cartSlice";
 
 export default function CartModal({ visible, onClose }) {
+  const user = useSelector((state) => state.user.user);
   const selectedProduct = useSelector((state) => state.product.selectedProduct);
+  const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1); // State for quantity
-
-  const increaseQuantity = () => {
-    setQuantity(quantity + 1);
-  };
-
-  const decreaseQuantity = () => {
-    if (quantity > 1) setQuantity(quantity - 1); // Ensure quantity doesn't go below 1
-  };
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
-  const handleAddToCart = () => {
-    if (selectedOption && selectedSize) {
-      console.log("Added to Cart:", {
-        product: selectedProduct,
-        quantity,
-        selectedOption,
-        selectedSize,
-      });
-      onClose(); // Close modal after adding to cart
+  const [currentImage, setCurrentImage] = useState(selectedProduct.mainImage); // State for current image
+
+  useEffect(() => {
+    if (selectedOption) {
+      const selectedSubImage = selectedProduct.subImages.find(
+        (item) => item.name === selectedOption
+      );
+      if (selectedSubImage) {
+        setCurrentImage(selectedSubImage.img);
+      } else {
+        setCurrentImage(selectedProduct.mainImage);
+      }
     } else {
-      alert("Please select an option and size before adding to cart.");
+      setCurrentImage(selectedProduct.mainImage); // Nếu không có tùy chọn, sử dụng hình ảnh chính
     }
+  }, [selectedOption, selectedProduct]);
+
+  const handleAddToCart = async () => {
+    const userId = user.id; // Lấy userId từ Redux store
+
+    // Kiểm tra xem userId có hợp lệ không
+    if (!userId) {
+      console.error("User  ID is required");
+      return; // Dừng lại nếu userId không hợp lệ
+    }
+
+    const item = {
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      quantity: quantity,
+      option: selectedOption,
+      size: selectedSize,
+      img: currentImage,
+    };
+
+    try {
+      // Gọi dispatch với cả userId và item
+      await dispatch(addToCart({ userId, item })).unwrap(); // unwrap() để xử lý lỗi
+      console.log("Item added to Firestore successfully");
+      onClose(); // Đóng modal
+    } catch (error) {
+      console.error("Failed to add item to Firestore:", error);
+    }
+  };
+
+  const handleDecreaseQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1); // Giảm số lượng
+    }
+  };
+
+  const handleIncreaseQuantity = () => {
+    setQuantity(quantity + 1); // Tăng số lượng
   };
 
   return (
@@ -51,21 +93,12 @@ export default function CartModal({ visible, onClose }) {
         <View style={styles.content}>
           <View style={styles.card}>
             {/* Close button */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                console.log("Close button pressed");
-                onClose();
-              }}
-            >
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <AntDesign name="close" size={24} color="black" />
             </TouchableOpacity>
 
             <View style={styles.imgAndPrice}>
-              <Image
-                source={selectedProduct.mainImage}
-                style={styles.imgModal}
-              />
+              <Image source={currentImage} style={styles.imgModal} />
               <Text style={styles.priceText}>
                 $ {(selectedProduct.price * quantity).toFixed(2)}
               </Text>
@@ -81,6 +114,7 @@ export default function CartModal({ visible, onClose }) {
                       styles.colorButton,
                       selectedOption === item.name && styles.selectedButton,
                     ]}
+                    on
                     onPress={() => {
                       setSelectedOption(item.name);
                       setSelectedSize(null); // Reset size khi chọn option khác
@@ -91,7 +125,7 @@ export default function CartModal({ visible, onClose }) {
                 ))}
             </View>
 
-            {/* Sizes (Chỉ hiển thị khi đã chọn option) */}
+            {/* Sizes  */}
             {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
               <>
                 <Text style={styles.colorText}>Sizes</Text>
@@ -117,14 +151,14 @@ export default function CartModal({ visible, onClose }) {
               <View style={styles.quantityNumber}>
                 <TouchableOpacity
                   style={styles.quantityButton}
-                  onPress={decreaseQuantity}
+                  onPress={handleDecreaseQuantity}
                 >
                   <AntDesign name="minus" size={20} color="black" />
                 </TouchableOpacity>
                 <Text style={styles.quantityText}>{quantity}</Text>
                 <TouchableOpacity
                   style={styles.quantityButton}
-                  onPress={increaseQuantity}
+                  onPress={handleIncreaseQuantity}
                 >
                   <AntDesign name="plus" size={20} color="black" />
                 </TouchableOpacity>
@@ -134,7 +168,7 @@ export default function CartModal({ visible, onClose }) {
             <TouchableOpacity
               style={[styles.buttonAddOrBuy]}
               onPress={() => {
-                console.log("Added to Cart with Quantity:", quantity);
+                handleAddToCart();
                 onClose(); // Close modal after adding to cart
               }}
             >
@@ -181,7 +215,7 @@ const styles = StyleSheet.create({
     color: COLORS.red,
     marginLeft: 20,
     fontSize: 16,
-    fontWeight:600,
+    fontWeight: "600",
   },
   card: {
     width: "90%",
@@ -240,7 +274,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   quantityText: {
     fontSize: 16,
     fontWeight: "bold",

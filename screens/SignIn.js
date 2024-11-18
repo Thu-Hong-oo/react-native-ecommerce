@@ -43,6 +43,7 @@ const SignIn = ({ navigation }) => {
         // Dispatch action để lưu thông tin người dùng vào Redux
         dispatch(
           setUser({
+            id: userId,
             name: userData.personal_information.personal_info.full_name,
             avatar: userData.personal_information.personal_info.avatar || null,
             email: userData.personal_information.personal_info.email,
@@ -135,7 +136,7 @@ const SignIn = ({ navigation }) => {
             style={styles.input}
             placeholderTextColor="#7a7a7a"
             value={password}
-            onChangeText={setPassword} 
+            onChangeText={setPassword}
           />
         </View>
 
