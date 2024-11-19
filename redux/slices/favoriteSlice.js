@@ -35,7 +35,7 @@ const favoriteSlice = createSlice({
 export const saveFavoriteToFirestore =
   (userId, productId) => async (dispatch) => {
     const db = getFirestore(app);
-    const userRef = doc(db, "Users", userId); // Tài liệu của người dùng
+    const userRef = doc(db, "Users", userId, "favorite"); // Tài liệu của người dùng
 
     try {
       await updateDoc(userRef, {

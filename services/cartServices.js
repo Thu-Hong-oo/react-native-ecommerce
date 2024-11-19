@@ -44,7 +44,7 @@ export const addToCartInService = async (userId, item) => {
   if (!userId) {
     throw new Error("User  ID is required");
   }
-  const cartRef = collection(doc(db, "Users", userId), "cart");
+  const cartRef = collection(doc(db, "Users", userId), "carts");
 
   try {
     // Kiểm tra sản phẩm đã tồn tại với cùng id, size và option hay chưa
@@ -81,7 +81,7 @@ export const addToCartInService = async (userId, item) => {
   }
 };
 export const removeFromCartInService = async (userId, firestoreId) => {
-  const cartRef = doc(db, "Users", userId, "cart", firestoreId);
+  const cartRef = doc(db, "Users", userId, "carts", firestoreId);
   try {
     await deleteDoc(cartRef);
   } catch (error) {
@@ -95,7 +95,7 @@ export const updateCartItemQuantityInService = async (
   quantity,
   userId // Thêm tham số userId
 ) => {
-  const cartRef = doc(db, "Users", userId, "cart", firestoreId);
+  const cartRef = doc(db, "Users", userId, "carts", firestoreId);
 
   try {
     const docSnapshot = await getDoc(cartRef);
