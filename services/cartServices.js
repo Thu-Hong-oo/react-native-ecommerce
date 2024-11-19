@@ -14,7 +14,7 @@ import {
 
 // Fetch Cart Items
 export const fetchCartItemsFromService = async (userId) => {
-  const cartRef = collection(doc(db, "Users", userId), "cart");
+  const cartRef = collection(doc(db, "Users", userId), "carts");
   const snapshot = await getDocs(cartRef);
 
   if (snapshot.empty) {
