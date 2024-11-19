@@ -21,39 +21,34 @@ const collectionRef = db.collection("Products");
 
 const addManualProduct = () => {
   const product = {
-    name: "Simpson Local Brand Streetwear Oversize Sports T-Shirt - TS10",
+    name: "Cole Haan Men's Grandpro Ashland Laser Perf Sneaker",
     description:
-      "SIMPSON ® Sportswear T-Shirt Material: Premium Cotton 100%. Size: M / L / XL. Anti-crack embossed silk screen printing, high adhesion",
-    price: 10,
-    quantity: 100,
-    category: "Clothes",
-    type: "T-shirt",
-    rating: "4.8",
+      "A timeless take on the classic sport silhouette, this lace-up sneaker is crafted from luxurious leathers for a touch of elegance.",
+    price: 160,
+    quantity: 400,
+    category: "Shoes",
+    type: "",
+    rating: "",
     mainImage:
-      "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtd9ts9d4nv6d.webp",
+      "https://m.media-amazon.com/images/I/71XF6ewbzSL._AC_SX500_.jpg",
     subImages: [
+
       {
-        name: "Black",
-        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtd9ts9d4nv6d.webp",
+        name: "Navy",
+        img: "https://m.media-amazon.com/images/I/71XF6ewbzSL._AC_SX500_.jpg",
       },
       {
-        name: "Red",
-        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-loiihga4i1gz96.webp",
+        name: "Sesame",
+        img: "https://m.media-amazon.com/images/I/71zZbwrInJL._AC_SX395_.jpg",
       },
-      {
-        name: "Gray",
-        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lp4wevr8zg4b57.webp",
-      },
-      {
-        name: "White",
-        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtda508xy3dc6.webp",
-      },
+    
+    
     ],
-    sizes: ["M(<58kg)", "L(<73kg)", "XL<90kg"],
+    sizes: [],
     createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Thêm timestamp
   };
 
-  const docRef = collectionRef.doc("CT000002"); // Tạo document với ID
+  const docRef = collectionRef.doc("S0000005"); // Tạo document với ID
   docRef
     .set(product)
     .then(() => {

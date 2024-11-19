@@ -1,4 +1,4 @@
-import React, { useEffect,useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,19 +6,22 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Pressable,
 } from "react-native";
 import COLORS from "../components/Colors";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-export default function MyOrder() {
+export default function Order({navigation}) {
   const [activeTab, setActiveTab] = useState("order");
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Icon name="chevron-left" size={20} color="#1F2937" />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Icon name="chevron-left" type="fontawesome" size={20} color="#555" />
+        </Pressable>
         <Text style={styles.headerTitle}>My Order</Text>
-       <Text></Text>
+        <Text></Text>
       </View>
 
       {/* Tabs */}
@@ -29,9 +32,7 @@ export default function MyOrder() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setActiveTab("history")}>
-          <Text
-            style={activeTab === "history" ? styles.tabActive : styles.tab}
-          >
+          <Text style={activeTab === "history" ? styles.tabActive : styles.tab}>
             History
           </Text>
         </TouchableOpacity>
