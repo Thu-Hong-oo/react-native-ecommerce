@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { Ionicons } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { fetchFavorites } from "../services/favoriteService"; // Nhập hàm fetchFavorites từ service
 import { getAllProducts } from "../services/productService";
 import {
@@ -19,20 +19,20 @@ import {
   deleteProductFromFavorites,
 } from "../redux/slices/favoriteSlice";
 export default function Favorite() {
-  //
   const [favoriteIds, setFavoriteIds] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(""); // State cho tìm kiếm
+
+  const dispatch = useDispatch();
   useEffect(() => {
     const loadFavorites = async () => {
       const favorites = await fetchFavorites(); // Lấy danh sách ID sản phẩm yêu thích
+
       setFavoriteIds(favorites); // Cập nhật danh sách ID yêu thích
     };
 
     loadFavorites();
-  }, []);
-
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const productData = await getAllProducts(); // Gọi hàm từ productService
@@ -49,6 +49,26 @@ export default function Favorite() {
   const favoriteProducts = products.filter((product) =>
     favoriteIds.includes(product.id)
   );
+  console.log("filter data:", favoriteProducts);
+  const [filter, setFilter] = useState("all");
+
+  // Lọc sản phẩm theo tên
+  const filteredProducts = () => {
+    const filteredBySearch = favoriteProducts.filter((product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    switch (filter) {
+      case "latest":
+        return filteredBySearch.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      case "cheapest":
+        return filteredBySearch.sort((a, b) => a.price - b.price);
+      default:
+        return filteredBySearch; // Tất cả
+    }
+  };
   const renderProduct = ({ item }) => (
     <View style={styles.productContainer}>
       <Image
@@ -59,11 +79,8 @@ export default function Favorite() {
       <TouchableOpacity
         style={styles.heartIconContainer}
         onPress={() => {
-          if (isFavorite) {
-            dispatch(deleteProductFromFavorites(item.id)); // Xóa khỏi yêu thích
-          } else {
-            dispatch(saveProductToFavorites(item.id)); // Lưu vào yêu thích
-          }
+          dispatch(deleteProductFromFavorites(item.id));
+          setFavoriteIds((prev) => prev.filter((id) => id !== item.id)); // Cập nhật state
         }}
       >
         <Ionicons
@@ -95,29 +112,64 @@ export default function Favorite() {
           placeholder="Search something..."
           placeholderTextColor="gray"
           style={styles.searchInput}
+          value={searchQuery} // Gán giá trị tìm kiếm
+          onChangeText={setSearchQuery}
         />
         <Icon name="search" size={20} color="gray" style={styles.searchIcon} />
       </View>
 
       {/* Filters */}
       <View style={styles.filters}>
-        <TouchableOpacity style={[styles.filterButton, styles.filterActive]}>
-          <Text style={styles.filterTextActive}>All</Text>
+        <TouchableOpacity
+          style={[styles.filterButton, filter === "all" && styles.filterActive]}
+          onPress={() => setFilter("all")}
+        >
+          <Text
+            style={
+              filter === "all" ? styles.filterTextActive : styles.filterText
+            }
+          >
+            All
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Latest</Text>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === "latest" && styles.filterActive,
+          ]}
+          onPress={() => setFilter("latest")}
+        >
+          <Text
+            style={
+              filter === "latest" ? styles.filterTextActive : styles.filterText
+            }
+          >
+            Latest
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Most Popular</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterText}>Cheapest</Text>
+
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === "cheapest" && styles.filterActive,
+          ]}
+          onPress={() => setFilter("cheapest")}
+        >
+          <Text
+            style={
+              filter === "cheapest"
+                ? styles.filterTextActive
+                : styles.filterText
+            }
+          >
+            Cheapest
+          </Text>
         </TouchableOpacity>
       </View>
 
       {/* Product List */}
       <FlatList
-        data={favoriteProducts}
+        data={filteredProducts()}
         renderItem={renderProduct}
         keyExtractor={(item) => item.id}
         numColumns={2}
@@ -165,13 +217,13 @@ const styles = StyleSheet.create({
   filters: {
     flexDirection: "row",
     marginBottom: 16,
+    justifyContent: "space-around",
   },
   filterButton: {
     paddingVertical: 8,
-    paddingHorizontal: 14,
+    paddingHorizontal: 22,
     borderRadius: 20,
     backgroundColor: "#e5e5e5",
-    marginRight: 8,
   },
   filterActive: {
     backgroundColor: "#6B46C1",
