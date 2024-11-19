@@ -1,86 +1,55 @@
-// favoriteSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  getFirestore,
-  doc,
-  updateDoc,
-  getDoc,
-  arrayUnion,
-  arrayRemove,
-} from "firebase/firestore";
-import { app } from "../../config/firebaseConfig"; // Đường dẫn đến cấu hình Firebase
+  saveFavorite,
+  fetchFavorites,
+  removeFavorite,
+} from "../../services/favoriteService";
 
 const favoriteSlice = createSlice({
   name: "favorites",
   initialState: {
-    items: [],
+    items: [], // Danh sách yêu thích (chỉ chứa ID sản phẩm)
   },
   reducers: {
-    setFavorites: (state, action) => {
-      state.items = action.payload;
+    setFavoriteItems: (state, action) => {
+      state.items = action.payload; // Cập nhật toàn bộ danh sách yêu thích
     },
-    addFavorite: (state, action) => {
-      const itemExists = state.items.find((item) => item === action.payload);
+    addFavoriteItem: (state, action) => {
+      const itemExists = state.items.includes(action.payload);
       if (!itemExists) {
-        state.items.push(action.payload);
+        state.items.push(action.payload); // Thêm ID sản phẩm vào danh sách
       }
     },
-    removeFavorite: (state, action) => {
-      state.items = state.items.filter((item) => item !== action.payload);
+    removeFavoriteItem: (state, action) => {
+      state.items = state.items.filter((item) => item !== action.payload); // Xóa sản phẩm khỏi danh sách
     },
   },
 });
+// Thunk để lấy danh sách yêu thích từ Firestore
+export const loadFavoriteItems = () => async (dispatch) => {
+  const favorites = await fetchFavorites(); // Lấy danh sách từ Firestore
+  dispatch(setFavoriteItems(favorites)); // Cập nhật Redux
+};
 
-// Thêm hàm để lưu danh sách yêu thích vào tài liệu người dùng
-export const saveFavoriteToFirestore =
-  (userId, productId) => async (dispatch) => {
-    const db = getFirestore(app);
-    const userRef = doc(db, "Users", userId, "favorite"); // Tài liệu của người dùng
-
-    try {
-      await updateDoc(userRef, {
-        favorites: arrayUnion(productId), // Thêm ID sản phẩm vào mảng favorites
-      });
-      dispatch(addFavorite(productId)); // Lưu ID sản phẩm vào Redux
-    } catch (error) {
-      console.error("Lỗi khi lưu yêu thích: ", error);
-    }
-  };
-
-// Thêm hàm để lấy danh sách yêu thích từ tài liệu người dùng
-export const fetchFavoritesFromFirestore = (userId) => async (dispatch) => {
-  const db = getFirestore(app);
-  const userRef = doc(db, "Users", userId); // Tài liệu của người dùng
-
+export const saveProductToFavorites = (productId) => async (dispatch) => {
   try {
-    const userDoc = await getDoc(userRef);
-    if (userDoc.exists()) {
-      const favorites = userDoc.data().favorites || []; // Lấy mảng favorites
-      dispatch(setFavorites(favorites));
-    } else {
-      console.log("Tài liệu người dùng không tồn tại");
-    }
+    await saveFavorite(productId); // Lưu sản phẩm vào Firestore
+    dispatch(addFavoriteItem(productId)); // Cập nhật Redux
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách yêu thích: ", error);
+    console.error("Failed to save favorite:", error);
   }
 };
 
-// Thêm hàm để xóa yêu thích từ tài liệu người dùng
-export const removeFavoriteFromFirestore =
-  (userId, productId) => async (dispatch) => {
-    const db = getFirestore(app);
-    const userRef = doc(db, "Users", userId); // Tài liệu của người dùng
+export const deleteProductFromFavorites = (productId) => async (dispatch) => {
+  try {
+    await removeFavorite(productId); // Xóa sản phẩm khỏi Firestore
+    dispatch(removeFavoriteItem(productId)); // Cập nhật Redux
+  } catch (error) {
+    console.error("Failed to delete favorite:", error);
+  }
+};
 
-    try {
-      await updateDoc(userRef, {
-        favorites: arrayRemove(productId), // Xóa ID sản phẩm khỏi mảng favorites
-      });
-      dispatch(removeFavorite(productId)); // Xóa ID sản phẩm khỏi Redux
-    } catch (error) {
-      console.error("Lỗi khi xóa yêu thích: ", error);
-    }
-  };
-
-export const { setFavorites, addFavorite, removeFavorite } =
+export const { setFavoriteItems, addFavoriteItem, removeFavoriteItem } =
   favoriteSlice.actions;
+
 export default favoriteSlice.reducer;

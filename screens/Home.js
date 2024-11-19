@@ -24,7 +24,11 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedProduct } from "../redux/slices/productSlice";
 import { fetchCartItems } from "../redux/slices/cartSlice";
-import { addFavorite, removeFavorite, saveFavoriteToFirestore, fetchFavoritesFromFirestore } from "../redux/slices/favoriteSlice";
+import {
+  loadFavoriteItems,
+  saveProductToFavorites,
+  deleteProductFromFavorites,
+} from "../redux/slices/favoriteSlice";
 
 export default function Home({ navigation }) {
   const dispatch = useDispatch();
@@ -36,6 +40,7 @@ export default function Home({ navigation }) {
 
   useEffect(() => {
     dispatch(fetchCartItems(user.id));
+    dispatch(loadFavoriteItems()); // Lấy danh sách yêu thích khi component được mount
 
     const getProduct = async () => {
       try {
@@ -59,7 +64,7 @@ export default function Home({ navigation }) {
   }, [dispatch, user.id]);
 
   const renderProduct = ({ item }) => {
-    const isFavorite = favorites.some((fav) => fav.id === item.id);
+    const isFavorite = favorites.includes(item.id); // Kiểm tra xem sản phẩm có trong danh sách yêu thích không
     return (
       <TouchableOpacity
         style={styles.itemContainer}
@@ -78,16 +83,16 @@ export default function Home({ navigation }) {
             style={styles.heartIconContainer}
             onPress={() => {
               if (isFavorite) {
-                dispatch(removeFavorite(item));
+                dispatch(deleteProductFromFavorites(item.id)); // Xóa khỏi yêu thích
               } else {
-                dispatch(addFavorite(item));
+                dispatch(saveProductToFavorites(item.id)); // Lưu vào yêu thích
               }
             }}
           >
             <Ionicons
               name={isFavorite ? "heart" : "heart-outline"} // Sử dụng biểu tượng khác nhau
               size={23}
-              color={isFavorite ? "#FF6B6B" : "#FF6B6B"} // Thay đổi màu sắc
+              color="#FF6B6B" // Màu sắc
             />
           </TouchableOpacity>
         </View>
@@ -103,7 +108,7 @@ export default function Home({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.userProfile}>
-          <Image source={user.avatar} style={styles.userImage} />
+          <Image source={{ uri: user.avatar }} style={styles.userImage} />
           <View>
             <Text style={styles.userText}>Hi, {user.name}</Text>
             <Text style={styles.userSubText}>Let's go shopping</Text>
