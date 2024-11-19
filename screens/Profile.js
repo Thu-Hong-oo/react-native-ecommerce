@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useSelector, useDispatch } from "react-redux";
-
+import COLORS from "../components/Colors";
 export default function Profile({ navigation }) {
   const user = useSelector((state) => state.user.user);
   console.log("ưdsds", user);
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   saveButton: {
-    backgroundColor: "#4F46E5",
+    backgroundColor: COLORS.primary,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",

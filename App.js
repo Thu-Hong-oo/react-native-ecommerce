@@ -19,6 +19,7 @@ import DetailProduct from "./screens/DetailProduct";
 import Cart from "./screens/Cart";
 import Favorite from "./screens/Favorite";
 import Profile from "./screens/Profile";
+import Order from "./screens/Order";
 
 import Screen01 from "./screens/Screen01";
 import Screen02 from "./screens/Screen02";
@@ -72,7 +73,7 @@ function HomeStack() {
 function OrderStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Order" component={Search} />
+      <Stack.Screen name="Order" component={Order} />
     </Stack.Navigator>
   );
 }
