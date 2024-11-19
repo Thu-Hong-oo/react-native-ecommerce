@@ -18,6 +18,7 @@ import Notification from "./screens/Notification";
 import DetailProduct from "./screens/DetailProduct";
 import Cart from "./screens/Cart";
 import Favorite from "./screens/Favorite";
+import Profile from "./screens/Profile";
 
 import Screen01 from "./screens/Screen01";
 import Screen02 from "./screens/Screen02";
@@ -89,7 +90,7 @@ function FavoriteStack() {
 function ProfileStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ProfileScreen" component={Screen06} />
+      <Stack.Screen name="Profile" component={Profile} />
     </Stack.Navigator>
   );
 }
