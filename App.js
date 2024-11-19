@@ -16,18 +16,19 @@ import SignUp from "./screens/SignUp";
 import ForgotPassword from "./screens/ForgotPassword";
 import Notification from "./screens/Notification";
 import DetailProduct from "./screens/DetailProduct";
+import Cart from "./screens/Cart";
+import Favorite from "./screens/Favorite";
+
 import Screen01 from "./screens/Screen01";
 import Screen02 from "./screens/Screen02";
 import Screen03 from "./screens/Screen03";
 import Screen04 from "./screens/Screen04";
-
+import Screen05 from "./screens/Screen04";
 import Screen06 from "./screens/Screen06";
 import Screen07 from "./screens/Screen07";
 import Screen08 from "./screens/Screen08";
 import Screen09 from "./screens/Screen09";
 import Screen10 from "./screens/Screen10";
-
-import Cart from "./screens/Cart";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -79,8 +80,7 @@ function OrderStack() {
 function FavoriteStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="SignIn" component={SignIn} />
-      <Stack.Screen name="SignUp" component={SignUp} />
+      <Stack.Screen name="Favorite" component={Favorite} />
     </Stack.Navigator>
   );
 }

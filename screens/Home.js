@@ -13,17 +13,10 @@ import COLORS from "../components/Colors";
 import Carousel from "../components/Carousel";
 import Category from "../components/Category";
 import CartIcon from "../components/CartIcon";
-import { app } from "../config/firebaseConfig";
-import {
-  collection,
-  getDocs,
-  getFirestore,
-  query,
-  orderBy,
-} from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedProduct } from "../redux/slices/productSlice";
 import { fetchCartItems } from "../redux/slices/cartSlice";
+import { getLastedProducts } from "../services/productService";
 import {
   loadFavoriteItems,
   saveProductToFavorites,
@@ -35,6 +28,7 @@ export default function Home({ navigation }) {
   const user = useSelector((state) => state.user.user);
   const cartStatus = useSelector((state) => state.cart.status);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
   const favorites = useSelector((state) => state.favorites.items);
 
@@ -42,25 +36,18 @@ export default function Home({ navigation }) {
     dispatch(fetchCartItems(user.id));
     dispatch(loadFavoriteItems()); // Lấy danh sách yêu thích khi component được mount
 
-    const getProduct = async () => {
+    const fetchProducts = async () => {
       try {
-        const db = getFirestore(app);
-        const productQuery = query(
-          collection(db, "Products"),
-          orderBy("createdAt", "desc")
-        );
-        const querySnapshot = await getDocs(productQuery);
-        const data = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setProducts(data);
+        const productData = await getLastedProducts(); // Gọi hàm từ productService
+        setProducts(productData); // Cập nhật danh sách sản phẩm
       } catch (error) {
         console.error("Lỗi khi lấy sản phẩm: ", error);
+      } finally {
+        setLoading(false); // Đặt loading thành false sau khi lấy dữ liệu
       }
     };
 
-    getProduct();
+    fetchProducts();
   }, [dispatch, user.id]);
 
   const renderProduct = ({ item }) => {
