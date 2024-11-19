@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import AntDesign from "react-native-vector-icons/AntDesign";
+import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../components/Colors";
 import Carousel from "../components/Carousel";
 import Category from "../components/Category";
@@ -21,69 +21,83 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { useSelector, useDispatch } from "react-redux"; // Import useSelector
+import { useSelector, useDispatch } from "react-redux";
 import { setSelectedProduct } from "../redux/slices/productSlice";
+import { fetchCartItems } from "../redux/slices/cartSlice";
+import { addFavorite, removeFavorite, saveFavoriteToFirestore, fetchFavoritesFromFirestore } from "../redux/slices/favoriteSlice";
 
 export default function Home({ navigation }) {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user); // Lấy thông tin người dùng từ Redux store
-
-  if (!user) {
-    return <Text>Loading...</Text>; // Hiển thị Loading khi chưa có thông tin người dùng
-  }
-
-  const db = getFirestore(app);
+  const user = useSelector((state) => state.user.user);
+  const cartStatus = useSelector((state) => state.cart.status);
   const [products, setProducts] = useState([]);
-  const [activeTab, setActiveTab] = useState("home"); // State để theo dõi tab hiện tại
+  const [activeTab, setActiveTab] = useState("home");
+  const favorites = useSelector((state) => state.favorites.items);
 
   useEffect(() => {
+    dispatch(fetchCartItems(user.id));
+
+    const getProduct = async () => {
+      try {
+        const db = getFirestore(app);
+        const productQuery = query(
+          collection(db, "Products"),
+          orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(productQuery);
+        const data = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setProducts(data);
+      } catch (error) {
+        console.error("Lỗi khi lấy sản phẩm: ", error);
+      }
+    };
+
     getProduct();
-  }, []);
+  }, [dispatch, user.id]);
 
-  const getProduct = async () => {
-    try {
-      const productQuery = query(
-        collection(db, "Products"),
-        orderBy("createdAt", "desc") // Sắp xếp theo createdAt giảm dần
-      );
-      const querySnapshot = await getDocs(productQuery); // Lấy dữ liệu từ Firestore
-      const data = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })); // Thêm id vào mỗi sản phẩm
-      setProducts(data); // Cập nhật state với dữ liệu sản phẩm
-    } catch (error) {
-      console.error("Lỗi khi lấy sản phẩm: ", error); // Xử lý lỗi
-    }
+  const renderProduct = ({ item }) => {
+    const isFavorite = favorites.some((fav) => fav.id === item.id);
+    return (
+      <TouchableOpacity
+        style={styles.itemContainer}
+        onPress={() => {
+          dispatch(setSelectedProduct(item));
+          navigation.navigate("DetailProduct");
+        }}
+      >
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: item.mainImage }}
+            style={styles.itemImage}
+            resizeMode="contain"
+          />
+          <TouchableOpacity
+            style={styles.heartIconContainer}
+            onPress={() => {
+              if (isFavorite) {
+                dispatch(removeFavorite(item));
+              } else {
+                dispatch(addFavorite(item));
+              }
+            }}
+          >
+            <Ionicons
+              name={isFavorite ? "heart" : "heart-outline"} // Sử dụng biểu tượng khác nhau
+              size={23}
+              color={isFavorite ? "#FF6B6B" : "#FF6B6B"} // Thay đổi màu sắc
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.itemPrice}>{item.price}$</Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
-
-  const renderProduct = ({ item }) => (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={() => {
-        dispatch(setSelectedProduct(item)); // Cập nhật sản phẩm đã chọn
-        navigation.navigate("DetailProduct"); // Điều hướng đến màn hình chi tiết
-      }}
-    >
-      <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: item.mainImage }}
-          style={styles.itemImage}
-          resizeMode="contain"
-        />
-        <TouchableOpacity
-          style={styles.heartIconContainer}
-          onPress={() => console.log(`Liked ${item.name}`)}
-        >
-          <Icon name="heart" type="feather" size={20} color="#FF6B6B" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.textContainer}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemPrice}>{item.price}$</Text>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
@@ -97,12 +111,7 @@ export default function Home({ navigation }) {
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-            <Icon
-              name="search"
-              type="feather"
-              size={20}
-              color={COLORS.primary}
-            />
+            <Icon name="search" size={20} color={COLORS.primary} />
           </TouchableOpacity>
           <CartIcon navigation={navigation} />
         </View>
@@ -181,7 +190,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-
   tabs: {
     flexDirection: "row",
     marginBottom: 16,
@@ -200,11 +208,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
     paddingHorizontal: 10,
     paddingBottom: 5,
-  },
-  categoryTitle: {
-    fontSize: 18,
-    fontWeight: "500",
-    marginBottom: 10,
   },
   sectionHeader: {
     flexDirection: "row",

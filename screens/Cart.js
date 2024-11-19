@@ -9,7 +9,7 @@ import {
   FlatList,
   Pressable,
 } from "react-native";
-import { Icon } from "react-native-elements";
+import { Icon, CheckBox } from "react-native-elements";
 import COLORS from "../components/Colors";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -17,8 +17,9 @@ import {
   removeFromCart,
   updateCartItemQuantity,
 } from "../redux/slices/cartSlice";
+import ModalMessage from "../components/ModalMeassage";
 
-const CartRender = ({ item, handleUpdateQuantity }) => {
+const CartRender = ({ item, handleUpdateQuantity, handleRemoveItem }) => {
   const [quantity, setQuantity] = useState(item.quantity || 1);
 
   const handleIncrease = () => {
@@ -34,10 +35,23 @@ const CartRender = ({ item, handleUpdateQuantity }) => {
       handleUpdateQuantity(item.firestoreId, newQuantity);
     }
   };
+  const [modalVisible, setModalVisible] = useState(false);
 
+  const handleConfirm = () => {
+    // Xử lý xác nhận
+    handleRemoveItem(item.firestoreId);
+    setModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    // Xử lý hủy
+    console.log("Hủy!");
+    setModalVisible(false);
+  };
   return (
     <View style={styles.cartItem}>
       <View style={styles.cartItemLeft}>
+        <CheckBox containerStyle={styles.checkbox} />
         <Image source={{ uri: item.img }} style={styles.image} />
         <View style={styles.itemDetails}>
           <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
@@ -61,7 +75,22 @@ const CartRender = ({ item, handleUpdateQuantity }) => {
           </View>
         </View>
       </View>
-      <Text style={styles.price}>${(item.price * quantity).toFixed(2)}</Text>
+      <View style={styles.priceContainer}>
+        <Text style={styles.price}>${(item.price * quantity).toFixed(2)}</Text>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <ModalMessage
+            visible={modalVisible}
+            message="Bạn có chắc chắn muốn xóa sản phẩm này ra khỏi giỏ hàng?"
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+          />
+          <Icon
+            name="delete-sweep-outline"
+            type="material-community"
+            color={COLORS.red}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -79,12 +108,10 @@ export default function Cart({ navigation }) {
   }, [dispatch, userId]);
 
   const handleUpdateQuantity = (firestoreId, newQuantity) => {
-    // Kiểm tra userId có tồn tại
     if (!userId) {
-      console.error("User ID is not defined");
+      console.error("User  ID is not defined");
       return;
     }
-    // Kiểm tra firestoreId
     if (!firestoreId) {
       console.error("Firestore ID is required");
       return;
@@ -97,7 +124,6 @@ export default function Cart({ navigation }) {
       newQuantity
     );
 
-    // Gọi action để cập nhật số lượng
     dispatch(
       updateCartItemQuantity({ firestoreId, quantity: newQuantity, userId })
     )
@@ -134,6 +160,7 @@ export default function Cart({ navigation }) {
           <CartRender
             item={item}
             handleUpdateQuantity={handleUpdateQuantity} // Pass update function
+            handleRemoveItem={handleRemoveItem} // Pass remove function
           />
         )}
         contentContainerStyle={styles.cartList}
@@ -167,13 +194,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginRight:20,
+    marginRight: 20,
   },
   cartItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 16,
+    paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
   },
@@ -189,6 +216,9 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 14,
     fontWeight: "bold",
+  },
+  priceContainer: {
+    alignItems: "flex-end",
   },
   price: {
     fontSize: 16,
@@ -251,5 +281,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  checkbox: {
+    padding: 0,
+    margin: 0,
   },
 });

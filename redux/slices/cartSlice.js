@@ -35,10 +35,10 @@ export const addToCart = createAsyncThunk(
 // Remove Item from Cart
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
-  async ({ userId, itemId }, { rejectWithValue }) => {
+  async ({ userId, firestoreId }, { rejectWithValue }) => {
     try {
-      await removeFromCartInService(userId, itemId);
-      return itemId;
+      await removeFromCartInService(userId, firestoreId);
+      return firestoreId;
     } catch (error) {
       console.error("Error removing item from cart:", error);
       return rejectWithValue(error.message);
@@ -105,7 +105,19 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.items.push(action.payload);
+
+        const existingItemIndex = state.items.findIndex(
+          (item) => item.firestoreId === action.payload.firestoreId
+        );
+
+        if (existingItemIndex !== -1) {
+          // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+          state.items[existingItemIndex].quantity = action.payload.quantity;
+        } else {
+          // Nếu sản phẩm chưa tồn tại, thêm mới
+          state.items.push(action.payload);
+        }
+
         // Tính toán lại tổng giá trị sau khi thêm sản phẩm
         state.totalPrice = state.items.reduce(
           (total, item) => total + item.price * item.quantity,
@@ -123,7 +135,10 @@ const cartSlice = createSlice({
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.items = state.items.filter((item) => item.id !== action.payload);
+        // Sử dụng firestoreId để so sánh
+        state.items = state.items.filter(
+          (item) => item.firestoreId !== action.payload
+        );
         // Tính toán lại tổng giá trị sau khi xóa sản phẩm
         state.totalPrice = state.items.reduce(
           (total, item) => total + item.price * item.quantity,

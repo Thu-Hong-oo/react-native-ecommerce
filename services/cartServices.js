@@ -9,6 +9,7 @@ import {
   query,
   where,
   getDoc,
+  addDoc,
 } from "firebase/firestore";
 
 // Fetch Cart Items
@@ -38,10 +39,10 @@ export const fetchCartItemsFromService = async (userId) => {
   return items;
 };
 
-// Add to Cart (cập nhật nếu sản phẩm giống nhau)
+//add tocart service
 export const addToCartInService = async (userId, item) => {
   if (!userId) {
-    throw new Error("User ID is required");
+    throw new Error("User  ID is required");
   }
   const cartRef = collection(doc(db, "Users", userId), "cart");
 
@@ -61,22 +62,26 @@ export const addToCartInService = async (userId, item) => {
       const existingData = existingDoc.data();
       const newQuantity = existingData.quantity + (item.quantity || 1);
 
+      // Cập nhật tài liệu với số lượng mới
       await updateDoc(existingDoc.ref, { quantity: newQuantity });
-      return { id: existingDoc.id, ...existingData, quantity: newQuantity };
+      return {
+        firestoreId: existingDoc.id,
+        ...existingData,
+        quantity: newQuantity,
+      };
     } else {
-      // Sản phẩm chưa tồn tại -> thêm mới
-      const docRef = doc(cartRef, item.id); // Sử dụng ID sản phẩm làm ID cho tài liệu
-      await setDoc(docRef, { ...item, quantity: item.quantity || 1 });
-      return { id: docRef.id, ...item, quantity: item.quantity || 1 };
+      // Sản phẩm chưa tồn tại -> thêm mới với ID tự động
+      const newItemData = { ...item, quantity: item.quantity || 1 };
+      const docRef = await addDoc(cartRef, newItemData);
+      return { firestoreId: docRef.id, ...newItemData }; // Trả về ID tự động
     }
   } catch (error) {
     console.error("Error adding item to cart:", error);
-    throw new Error("Failed to add item to cart");
+    throw new Error(`Failed to add item to cart: ${error.message}`);
   }
 };
-
-export const removeFromCartInService = async (userId, itemId) => {
-  const cartRef = doc(db, "Users", userId, "cart", itemId);
+export const removeFromCartInService = async (userId, firestoreId) => {
+  const cartRef = doc(db, "Users", userId, "cart", firestoreId);
   try {
     await deleteDoc(cartRef);
   } catch (error) {

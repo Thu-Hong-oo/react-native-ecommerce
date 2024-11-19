@@ -169,7 +169,7 @@ export default function CartModal({ visible, onClose }) {
               style={[styles.buttonAddOrBuy]}
               onPress={() => {
                 handleAddToCart();
-                onClose(); // Close modal after adding to cart
+    
               }}
             >
               <Text style={styles.textbuttonAddOrBuy}>Add to Cart</Text>

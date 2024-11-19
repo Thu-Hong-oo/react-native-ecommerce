@@ -4,9 +4,8 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import { Badge } from "react-native-elements";
 import { useSelector } from "react-redux";
 import COLORS from "../components/Colors";
-"@react-navigation/native";
-export default function CartIcon({ navigation }) {
 
+export default function CartIcon({ navigation }) {
   // Lấy số lượng sản phẩm trong giỏ hàng từ Redux store
   const items = useSelector((state) => state.cart.items);
   const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
