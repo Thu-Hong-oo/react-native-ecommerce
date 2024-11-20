@@ -16,41 +16,56 @@ import {
   fetchRecentSearches,
   clearSearchHistory,
 } from "../services/searchHistoryService";
-import { db } from "../config/firebaseConfig"; // Đảm bảo đã cấu hình Firebase
+import { db } from "../config/firebaseConfig";
 import {
   collection,
   query,
-  where,
   getDocs,
   orderBy,
   limit,
   startAt,
   endAt,
 } from "firebase/firestore";
+import { getAllProducts } from "../services/productService";
 
 export default function Search({ navigation }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [lastSearches, setLastSearches] = useState([]);
   const [suggestions, setSuggestions] = useState([]); // Gợi ý tên sản phẩm
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productData = await getAllProducts();
+        setProducts(productData); // Cập nhật danh sách sản phẩm
+        console.log("data: ", productData); // Log dữ liệu sản phẩm
+      } catch (error) {
+        console.error("Lỗi khi lấy sản phẩm: ", error);
+      } finally {
+        setLoading(false); // Đặt loading thành false sau khi lấy dữ liệu
+      }
+    };
+
+    // Hàm tải lịch sử tìm kiếm
+    const loadRecentSearches = async () => {
+      const searches = await fetchRecentSearches();
+      setLastSearches(searches);
+    };
+
+    fetchProducts();
     loadRecentSearches();
   }, []);
 
-  // Hàm tải lịch sử tìm kiếm
-  const loadRecentSearches = async () => {
-    const searches = await fetchRecentSearches();
-    setLastSearches(searches);
-  };
-
-  // Hàm lấy gợi ý từ Firestore
+  // Hàm lấy gợi ý sản phẩm
   const fetchProductSuggestions = async (queryText) => {
     if (queryText.trim() === "") {
       setSuggestions([]);
       return;
     }
 
-    const productsRef = collection(db, "Product");
+    const productsRef = collection(db, "Products");
     const q = query(
       productsRef,
       orderBy("name"),
@@ -59,9 +74,16 @@ export default function Search({ navigation }) {
       limit(10) // Giới hạn số gợi ý
     );
 
-    const querySnapshot = await getDocs(q);
-    const productSuggestions = querySnapshot.docs.map((doc) => doc.data().name); // Lấy tên sản phẩm
-    setSuggestions(productSuggestions);
+    try {
+      const querySnapshot = await getDocs(q);
+      const productSuggestions = querySnapshot.docs.map(
+        (doc) => doc.data().name
+      ); // Lấy tên sản phẩm
+      console.log("Product Suggestions: ", productSuggestions); // Log gợi ý
+      setSuggestions(productSuggestions);
+    } catch (error) {
+      console.error("Lỗi khi lấy gợi ý sản phẩm: ", error);
+    }
   };
 
   // Hàm xử lý khi người dùng thay đổi ô tìm kiếm
@@ -74,9 +96,13 @@ export default function Search({ navigation }) {
   const handleSearch = async () => {
     if (searchQuery.trim() !== "") {
       await saveSearch(searchQuery); // Lưu từ khóa tìm kiếm
+      const filteredProducts = products.filter((product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setProducts(filteredProducts); // Cập nhật danh sách sản phẩm hiển thị
       setSearchQuery("");
-      loadRecentSearches(); // Tải lại danh sách tìm kiếm sau khi thêm
-      setSuggestions([]); // Xóa gợi ý khi nhấn tìm kiếm
+      loadRecentSearches(); // Tải lại lịch sử tìm kiếm
+      setSuggestions([]); // Xóa gợi ý
     }
   };
 
@@ -92,8 +118,7 @@ export default function Search({ navigation }) {
       searches: "1.6k Search today",
       label: "Hot",
       labelColor: "#EF4444",
-      img: "https://plus.unsplash.com/premium_photo-1683121231638-4100d7f6deb2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8amFja2V0fGVufDB8fDB8fHww",
-    },
+      img: "https://plus.unsplash.com/premium_photo-1683121231638-4100d7f6deb2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8amFja2V0fGVufDB8fDB8fHww "},
     {
       name: "Denim Jeans",
       searches: "1k Search today",
@@ -196,7 +221,7 @@ export default function Search({ navigation }) {
         <Text style={styles.sectionTitle}>Popular Search</Text>
         {popularSearches.map((item, index) => (
           <View style={styles.popularItem} key={index}>
-            <Image source={item.img} style={styles.popularImage} />
+            <Image source={{ uri: item.img }} style={styles.popularImage} />
             <View style={styles.popularTextContainer}>
               <Text style={styles.popularTitle}>{item.name}</Text>
               <Text style={styles.popularSearches}>{item.searches}</Text>
@@ -225,13 +250,12 @@ const styles = StyleSheet.create({
   suggestionItem: {
     paddingVertical: 10,
     borderBottomColor: "#E5E7EB",
-    borderBottomWidth: 1,
+ borderBottomWidth: 1,
   },
   suggestionText: {
     fontSize: 16,
     color: "#374151",
   },
-
   container: {
     padding: 16,
     backgroundColor: "#FFFFFF",

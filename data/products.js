@@ -3,7 +3,6 @@ const firebase = require("firebase/compat/app");
 require("firebase/compat/firestore");
 
 const firebaseConfig = {
-  // Your Firebase project configuration
   apiKey: "AIzaSyBiVD74lGlaAhmRNJ-OuIgXtYs3BwnppXk",
   authDomain: "subproject-96426.firebaseapp.com",
   projectId: "subproject-96426",
@@ -17,32 +16,44 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
 
-// Get a reference to the collection
-const collectionRef = db.collection("Voucher");
+// Get a reference to the "Product" collection
+const collectionRef = db.collection("Products");
 
-// Define the data for the documents
-const dataArray = [
-  {code:'nghihoc', quantity:3, discount:0.05},
-    {code:'www', quantity:3, discount:0.15},
-    {code:'nghihocwww', quantity:3, discount:0.25},
-    {code:'nghihocreact', quantity:3, discount:0.5},
-];
+const addManualProduct = () => {
+  const product = {
+    name: "Cole Haan Men's Grandpro Ashland Laser Perf Sneaker",
+    description:
+      "A timeless take on the classic sport silhouette, this lace-up sneaker is crafted from luxurious leathers for a touch of elegance.",
+    price: 160,
+    quantity: 400,
+    category: "Shoes",
+    type: "",
+    rating: "",
+    mainImage: "https://m.media-amazon.com/images/I/71XF6ewbzSL._AC_SX500_.jpg",
+    subImages: [
+      {
+        name: "Navy",
+        img: "https://m.media-amazon.com/images/I/71XF6ewbzSL._AC_SX500_.jpg",
+      },
+      {
+        name: "Sesame",
+        img: "https://m.media-amazon.com/images/I/71zZbwrInJL._AC_SX395_.jpg",
+      },
+    ],
+    sizes: [],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Thêm timestamp
+  };
 
-// Create a batch write operation
-const batch = firebase.firestore().batch();
+  const docRef = collectionRef.doc("S0000005"); // Tạo document với ID
+  docRef
+    .set(product)
+    .then(() => {
+      console.log("Sản phẩm đã được thêm vào Firestore");
+    })
+    .catch((error) => {
+      console.error("Lỗi khi thêm sản phẩm: ", error);
+    });
+};
 
-// Loop through the data array and add each document to the batch
-dataArray.forEach((data) => {
-  const docRef = collectionRef.doc(); // Create a new document reference with a unique ID
-  batch.set(docRef, data); // Add the data to the batch for this document reference
-});
-
-// Commit the batch write operation
-batch
-  .commit()
-  .then(() => {
-    console.log("Batch write operation completed");
-  })
-  .catch((error) => {
-    console.error("Batch write operation failed: ", error);
-  });
+// Gọi hàm để thêm sản phẩm thủ công
+addManualProduct();
