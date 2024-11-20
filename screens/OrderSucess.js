@@ -11,9 +11,11 @@ import {
   ImageBackground,
 } from "react-native";
 import { Icon, Rating } from "react-native-elements";
-
+import { useSelector} from "react-redux";
 export default function Screen09({ navigation }) {
-  const [checked, setChecked] = React.useState("first");
+  const finalPrice = useSelector((state) => state.order.finalPrice);
+  const totalPrice = useSelector((state) => state.order.totalPrice);
+  const paymentMethod = useSelector((state) => state.order.paymentMethod);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -24,18 +26,10 @@ export default function Screen09({ navigation }) {
             </Pressable>
             <Text style={styles.alldeals}>Payment</Text>
           </View>
-
-          <View style={styles.itemRight}>
-            <Icon name="cart-outline" type="ionicon" size={20} color="gray" />
-            <Image
-              source={require("../assets/imgs/beauty.png")}
-              style={{ marginLeft: 10 }}
-            />
-          </View>
         </View>
       </View>
 
-      <View style={{ flex: 10 }}>
+      <View style={{ flex: 5 }}>
         <View style={{ flex: 1 }}>
           <View style={styles.notice}>
             <View style={styles.noticeIcon}>
@@ -50,18 +44,13 @@ export default function Screen09({ navigation }) {
 
           <View style={styles.paymentDetail}>
             <View style={styles.paymentDetailEach}>
-              <Text style={styles.paymentDetailEachText1}>Subtotal</Text>
-              <Text style={styles.paymentDetailEachText1}>$2,800</Text>
+              <Text style={styles.paymentDetailEachText1}>Tổng tiền</Text>
+              <Text style={styles.paymentDetailEachText1}>${totalPrice}</Text>
             </View>
 
             <View style={styles.paymentDetailEach}>
-              <Text style={styles.paymentDetailEachText1}>Tax (10%)</Text>
-              <Text style={styles.paymentDetailEachText1}>$280</Text>
-            </View>
-
-            <View style={styles.paymentDetailEach}>
-              <Text style={styles.paymentDetailEachText1}>Fees</Text>
-              <Text style={styles.paymentDetailEachText1}>$0</Text>
+              <Text style={styles.paymentDetailEachText1}>Số tiền cần thanh toán</Text>
+              <Text style={styles.paymentDetailEachText1}>${finalPrice}</Text>
             </View>
 
             <View style={{ alignItems: "center" }}>
@@ -69,43 +58,16 @@ export default function Screen09({ navigation }) {
             </View>
 
             <View style={styles.paymentDetailEach}>
-              <Text style={styles.paymentDetailEachText1}>Card</Text>
+              <Text style={styles.paymentDetailEachText1}>Phương thức thanh toán</Text>
               <View style={{ flexDirection: "row" }}>
-                <Image
-                  source={require("../assets/imgs/beauty.png")}
-                  style={styles.paymentMethodEachImg}
-                />
-                <Text style={styles.paymentDetailEachText1}>****** 2334</Text>
+                <Text style={styles.paymentDetailEachText1}>{paymentMethod}</Text>
               </View>
             </View>
 
-            <View style={{ alignItems: "center" }}>
-              <View style={[styles.hr, { width: "90%" }]} />
-            </View>
-
-            <View style={styles.paymentDetailEach}>
-              <Text style={styles.paymentDetailEachText1}>Total</Text>
-              <View style={{ flexDirection: "row" }}>
-                <Text style={styles.paymentDetailEachSucessIcon}>Sucess</Text>
-                <Text style={styles.paymentDetailEachText1}>$0</Text>
-              </View>
-            </View>
+            
           </View>
 
-          <View style={styles.ratingExperience}>
-            <Text style={styles.ratingExperienceText}>
-              How was your experience?
-            </Text>
-            <Rating
-              type="custom"
-              ratingColor="#F3C63F"
-              ratingBackgroundColor="#DEE1E6"
-              ratingCount={5}
-              imageSize={20}
-              onFinishRating={this.ratingCompleted}
-              style={{ paddingVertical: 10, width: "90%" }}
-            />
-          </View>
+          
 
           <View style={styles.backToHome}>
             <Pressable style={styles.buttonBackToHome}>

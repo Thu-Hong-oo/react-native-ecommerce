@@ -25,9 +25,9 @@ import Screen03 from "./screens/Screen03";
 import Screen04 from "./screens/Screen04";
 import Screen05 from "./screens/Screen04";
 import Screen06 from "./screens/Screen06";
-import Screen07 from "./screens/Screen07";
-import Screen08 from "./screens/Screen08";
-import Screen09 from "./screens/Screen09";
+import Checkout from "./screens/Checkout";
+import PaymentMethod from "./screens/PaymentMethod";
+import OrderSucess from "./screens/OrderSucess";
 import Screen10 from "./screens/Screen10";
 
 const Tab = createBottomTabNavigator();
@@ -62,7 +62,10 @@ function HomeStack() {
       <Stack.Screen name="Electronics" component={Screen02} />
       <Stack.Screen name="Fresh Fruits" component={Screen03} />
       <Stack.Screen name="Search" component={Search} />
-      <Stack.Screen name="Cart" component={Cart} />
+      <Stack.Screen name="Cart" component={Cart}/>
+      <Stack.Screen name="Checkout" component={Checkout} />
+      <Stack.Screen name="PaymentMethod" component={PaymentMethod} />
+      <Stack.Screen name="OrderSucess" component={OrderSucess} />
     </Stack.Navigator>
   );
 }

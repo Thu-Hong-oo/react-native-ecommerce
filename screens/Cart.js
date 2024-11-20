@@ -18,9 +18,17 @@ import {
   updateCartItemQuantity,
 } from "../redux/slices/cartSlice";
 import ModalMessage from "../components/ModalMeassage";
+import { setSelectedItems, setTotalPrice } from "../redux/slices/orderSlice"; 
 
-const CartRender = ({ item, handleUpdateQuantity, handleRemoveItem }) => {
+const CartRender = ({
+  item,
+  handleUpdateQuantity,
+  handleRemoveItem,
+  handleCheckboxChange,
+  isChecked,
+}) => {
   const [quantity, setQuantity] = useState(item.quantity || 1);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleIncrease = () => {
     const newQuantity = quantity + 1;
@@ -35,23 +43,25 @@ const CartRender = ({ item, handleUpdateQuantity, handleRemoveItem }) => {
       handleUpdateQuantity(item.firestoreId, newQuantity);
     }
   };
-  const [modalVisible, setModalVisible] = useState(false);
 
   const handleConfirm = () => {
-    // Xử lý xác nhận
     handleRemoveItem(item.firestoreId);
     setModalVisible(false);
   };
 
   const handleCancel = () => {
-    // Xử lý hủy
     console.log("Hủy!");
     setModalVisible(false);
   };
+
   return (
     <View style={styles.cartItem}>
       <View style={styles.cartItemLeft}>
-        <CheckBox containerStyle={styles.checkbox} />
+        <CheckBox
+          containerStyle={styles.checkbox}
+          checked={isChecked}
+          onPress={() => handleCheckboxChange(item, !isChecked)} // Gọi hàm với toàn bộ item
+        />
         <Image source={{ uri: item.img }} style={styles.image} />
         <View style={styles.itemDetails}>
           <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
@@ -100,6 +110,7 @@ export default function Cart({ navigation }) {
   const userId = user?.id; // Use optional chaining to safely access userId
   const { items, totalPrice } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
+  const [selectedItems, setSelectedItemsState] = useState([]);
 
   useEffect(() => {
     if (userId) {
@@ -143,6 +154,28 @@ export default function Cart({ navigation }) {
       .catch((err) => console.error("Failed to remove item:", err));
   };
 
+  const handleCheckboxChange = (item, isChecked) => {
+    if (isChecked) {
+      setSelectedItemsState((prevState) => [...prevState, item]); // Thêm sản phẩm vào danh sách đã chọn
+    } else {
+      setSelectedItemsState((prevState) =>
+        prevState.filter((selectedItem) => selectedItem.id !== item.id)
+      ); // Xóa sản phẩm khỏi danh sách đã chọn
+    }
+  };
+
+  const handleProceedToCheckout = () => {
+    // Tính toán totalPrice cho các sản phẩm đã chọn
+    const total = selectedItems.reduce((acc, item) => {
+      const itemPrice = item.price * (item.quantity || 1); // Tính giá cho từng sản phẩm
+      return acc + itemPrice; // Cộng dồn vào tổng
+    }, 0);
+
+    dispatch(setSelectedItems(selectedItems)); // Lưu các sản phẩm đã chọn vào orderSlice
+    dispatch(setTotalPrice(total)); // Lưu totalPrice vào orderSlice
+    navigation.navigate("Checkout"); // Chuyển hướng đến màn hình Checkout
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
@@ -159,8 +192,12 @@ export default function Cart({ navigation }) {
         renderItem={({ item }) => (
           <CartRender
             item={item}
-            handleUpdateQuantity={handleUpdateQuantity} // Pass update function
-            handleRemoveItem={handleRemoveItem} // Pass remove function
+            handleUpdateQuantity={handleUpdateQuantity}
+            handleRemoveItem={handleRemoveItem}
+            handleCheckboxChange={handleCheckboxChange} // Pass the checkbox handler to CartRender
+            isChecked={selectedItems.some(
+              (selectedItem) => selectedItem.id === item.id
+            )} // Kiểm tra xem item có được chọn không
           />
         )}
         contentContainerStyle={styles.cartList}
@@ -173,8 +210,11 @@ export default function Cart({ navigation }) {
         </Text>
       </View>
 
-      <TouchableOpacity style={styles.checkoutButton}>
-        <Text style={styles.checkoutText}>Proceed to Checkout </Text>
+      <TouchableOpacity
+        style={styles.checkoutButton}
+        onPress={handleProceedToCheckout}
+      >
+        <Text style={styles.checkoutText}>Proceed to Checkout</Text>
       </TouchableOpacity>
     </ScrollView>
   );

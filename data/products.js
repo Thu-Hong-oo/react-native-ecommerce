@@ -3,6 +3,7 @@ const firebase = require("firebase/compat/app");
 require("firebase/compat/firestore");
 
 const firebaseConfig = {
+  // Your Firebase project configuration
   apiKey: "AIzaSyBiVD74lGlaAhmRNJ-OuIgXtYs3BwnppXk",
   authDomain: "subproject-96426.firebaseapp.com",
   projectId: "subproject-96426",
@@ -16,53 +17,32 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
 
-// Get a reference to the "Product" collection
-const collectionRef = db.collection("Products");
+// Get a reference to the collection
+const collectionRef = db.collection("Voucher");
 
-const addManualProduct = () => {
-  const product = {
-    name: "Simpson Local Brand Streetwear Oversize Sports T-Shirt - TS10",
-    description:
-      "SIMPSON ® Sportswear T-Shirt Material: Premium Cotton 100%. Size: M / L / XL. Anti-crack embossed silk screen printing, high adhesion",
-    price: 10,
-    quantity: 100,
-    category: "Clothes",
-    type: "T-shirt",
-    rating: "4.8",
-    mainImage:
-      "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtd9ts9d4nv6d.webp",
-    subImages: [
-      {
-        name: "Black",
-        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtd9ts9d4nv6d.webp",
-      },
-      {
-        name: "Red",
-        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-loiihga4i1gz96.webp",
-      },
-      {
-        name: "Gray",
-        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lp4wevr8zg4b57.webp",
-      },
-      {
-        name: "White",
-        img: "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lxtda508xy3dc6.webp",
-      },
-    ],
-    sizes: ["M(<58kg)", "L(<73kg)", "XL<90kg"],
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Thêm timestamp
-  };
+// Define the data for the documents
+const dataArray = [
+  {code:'nghihoc', quantity:3, discount:0.05},
+    {code:'www', quantity:3, discount:0.15},
+    {code:'nghihocwww', quantity:3, discount:0.25},
+    {code:'nghihocreact', quantity:3, discount:0.5},
+];
 
-  const docRef = collectionRef.doc("CT000002"); // Tạo document với ID
-  docRef
-    .set(product)
-    .then(() => {
-      console.log("Sản phẩm đã được thêm vào Firestore");
-    })
-    .catch((error) => {
-      console.error("Lỗi khi thêm sản phẩm: ", error);
-    });
-};
+// Create a batch write operation
+const batch = firebase.firestore().batch();
 
-// Gọi hàm để thêm sản phẩm thủ công
-addManualProduct();
+// Loop through the data array and add each document to the batch
+dataArray.forEach((data) => {
+  const docRef = collectionRef.doc(); // Create a new document reference with a unique ID
+  batch.set(docRef, data); // Add the data to the batch for this document reference
+});
+
+// Commit the batch write operation
+batch
+  .commit()
+  .then(() => {
+    console.log("Batch write operation completed");
+  })
+  .catch((error) => {
+    console.error("Batch write operation failed: ", error);
+  });
