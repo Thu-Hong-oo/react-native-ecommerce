@@ -27,7 +27,11 @@ export default function DetailProduct({ navigation }) {
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [buttonType, setButtonType] = useState(null);
+  const openCartModal = (type) => {
+    setButtonType(type); // Set the button type based on which button was clicked
+    setModalVisible(true); // Open the modal
+  };
   const [data, setData] = useState([
     {
       name: "Headphone",
@@ -156,23 +160,6 @@ export default function DetailProduct({ navigation }) {
             </View>
           </View>
 
-          {/* {selectedProduct.sizes && (
-            <View>
-              <Text style={styles.size}>Size</Text>
-              <View style={styles.sizeContainer}>
-                {selectedProduct.sizes.map((size, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.sizeButton}
-                    onPress={() => console.log(`Selected size: ${size}`)}
-                  >
-                    <Text style={styles.sizeText}>{size}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          )} */}
-
           <View style={styles.description}>
             <Text style={styles.boldText}>Description</Text>
             <Text style={styles.grayText}>{selectedProduct.description}</Text>
@@ -248,12 +235,13 @@ export default function DetailProduct({ navigation }) {
       {/* Sử dụng CartModal */}
       <CartModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)} // Đóng modal khi nhấn nút đóng
+        buttonType={buttonType}
+        onClose={() => setModalVisible(false)}
       />
 
       <View style={styles.footer}>
         <View style={styles.btnCart}>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <TouchableOpacity onPress={() => openCartModal("addToCart")}>
             <Icon
               name="add-shopping-cart"
               type="materialIcons"
@@ -261,7 +249,10 @@ export default function DetailProduct({ navigation }) {
             />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.btnBuyNow}>
+        <TouchableOpacity
+          style={styles.btnBuyNow}
+          onPress={() => openCartModal("buyNow")}
+        >
           <Text style={styles.textBuyNow}>Buy Now</Text>
         </TouchableOpacity>
       </View>
@@ -329,7 +320,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 10,
-    resizeMode:"contain"
+    resizeMode: "contain",
   },
   footer: {
     paddingVertical: 10,

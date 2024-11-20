@@ -84,7 +84,7 @@ export default function Home({ navigation }) {
           </TouchableOpacity>
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.itemName} numberOfLines={2} ellipsizeMode="tail">{item.name}</Text>
           <Text style={styles.itemPrice}>{item.price}$</Text>
         </View>
       </TouchableOpacity>
@@ -250,6 +250,7 @@ const styles = StyleSheet.create({
   textContainer: {
     alignItems: "center",
     marginTop: 8,
+
   },
   itemName: {
     fontSize: 14,

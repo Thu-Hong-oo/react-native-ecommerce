@@ -1,38 +1,51 @@
 //screens/Checkout.js
-import React, { useState, useEffect} from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
-import { Icon } from 'react-native-elements';
-import COLORS from '../components/Colors';
-import { useSelector, useDispatch } from 'react-redux';
-import { getInfoFromVoucher } from '../services/orderServices';
-import { setVoucher,setFinalPrice } from '../redux/slices/orderSlice';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import { Icon } from "react-native-elements";
+import COLORS from "../components/Colors";
+import { useSelector, useDispatch } from "react-redux";
+import { getInfoFromVoucher } from "../services/orderServices";
+import { setVoucher, setFinalPrice } from "../redux/slices/orderSlice";
 
-const Screen07 = ({ navigation }) => {
+const Screen07 = ({ route, navigation }) => {
   const selectedItems = useSelector((state) => state.order.selectedItems);
   const dispatch = useDispatch();
-  const [voucherCode, setVoucherCode] = useState('');
+  const [voucherCode, setVoucherCode] = useState("");
   const [voucher, setVoucherInfo] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
   const [finalPrice, setFinalPriceInfo] = useState(0);
-  const [message, setMessage] = useState('');
-
+  const [message, setMessage] = useState("");
+  // Check if there is a product passed from the product screen
+  const productFromRoute = route.params?.product;
   // Tính tổng giá trị đơn hàng
   useEffect(() => {
-    const total = selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const items = productFromRoute ? [productFromRoute] : selectedItems; // Use product if available
+    const total = selectedItems.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
     setTotalPrice(total);
     setFinalPriceInfo(total); // Tính giá trị cuối cùng sau khi giảm giá
-  }, [selectedItems]); // Chỉ phụ thuộc vào selectedItems
+  }, [productFromRoute, selectedItems]); // Chỉ phụ thuộc vào selectedItems
 
   const handlegetInfoFromVoucher = async () => {
     try {
       const voucherInfo = await getInfoFromVoucher(voucherCode);
       setVoucherInfo(voucherInfo); // Lưu voucherInfo vào state cục bộ
-  
+
       const discountAmount = totalPrice * voucherInfo.discount; // Tính toán số tiền giảm giá
       setMessage(`Giảm được: $${discountAmount.toFixed(2)}`);
-      setFinalPriceInfo(totalPrice-discountAmount);
-  
+      setFinalPriceInfo(totalPrice - discountAmount);
+
       // Cập nhật Redux
       dispatch(setVoucher(voucherInfo)); // Lưu voucher vào Redux
       dispatch(setFinalPrice(totalPrice - discountAmount)); // Cập nhật giá trị cuối cùng
@@ -43,7 +56,7 @@ const Screen07 = ({ navigation }) => {
 
   const handleNext = async () => {
     dispatch(setFinalPrice(finalPrice));
-    navigation.navigate('PaymentMethod');
+    navigation.navigate("PaymentMethod");
   };
 
   return (
@@ -60,20 +73,22 @@ const Screen07 = ({ navigation }) => {
       {/* Cart Items */}
       <ScrollView showsHorizontalScrollIndicator={false}>
         <View style={styles.cartItems}>
-          {selectedItems.map((item) => (
-            <View key={item.id} style={styles.cartItem}>
-              <Image source={item.img} style={styles.itemImage} />
-              <View style={styles.itemDetails}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemDescription}>Consequat ex eu</Text>
-                <Text style={styles.itemPrice}>${item.price}</Text>
+          {(productFromRoute ? [productFromRoute] : selectedItems).map(
+            (item) => (
+              <View key={item.id} style={styles.cartItem}>
+                <Image source={item.img} style={styles.itemImage} />
+                <View style={styles.itemDetails}>
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  <Text style={styles.itemDescription}>Consequat ex eu</Text>
+                  <Text style={styles.itemPrice}>${item.price}</Text>
+                </View>
+                <View style={styles.itemPriceContainer}>
+                  <Icon name="edit" size={20} color="gray" />
+                  <Text style={styles.itemQuantity}>{item.quantity}</Text>
+                </View>
               </View>
-              <View style={styles.itemPriceContainer}>
-                <Icon name="edit" size={20} color="gray" />
-                <Text style={styles.itemQuantity}>{item.quantity}</Text>
-              </View>
-            </View>
-          ))}
+            )
+          )}
         </View>
 
         {/* Voucher and Total */}
@@ -86,7 +101,10 @@ const Screen07 = ({ navigation }) => {
             value={voucherCode}
             onChangeText={setVoucherCode}
           />
-          <TouchableOpacity style={styles.applyButton} onPress={handlegetInfoFromVoucher}>
+          <TouchableOpacity
+            style={styles.applyButton}
+            onPress={handlegetInfoFromVoucher}
+          >
             <Text style={styles.applyButtonText}>Apply</Text>
           </TouchableOpacity>
         </View>
@@ -98,8 +116,12 @@ const Screen07 = ({ navigation }) => {
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>TOTAL</Text>
           <View style={styles.totalPrice}>
-          <Text style={styles.totalAmount}>Tổng tiền: ${totalPrice.toFixed(2)}</Text>
-          <Text style={styles.totalFinal}>Số tiền cuối cùng: ${finalPrice.toFixed(2)}</Text>
+            <Text style={styles.totalAmount}>
+              Tổng tiền: ${totalPrice.toFixed(2)}
+            </Text>
+            <Text style={styles.totalFinal}>
+              Số tiền cuối cùng: ${finalPrice.toFixed(2)}
+            </Text>
           </View>
         </View>
 
@@ -142,6 +164,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginRight: 15,
+    resizeMode:"contain"
   },
   itemDetails: {
     flex: 1,
@@ -201,8 +224,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
-  totalPrice:{
-    alignItems:'flex-end'
+  totalPrice: {
+    alignItems: "flex-end",
   },
   totalAmount: {
     fontSize: 18,
@@ -227,11 +250,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginRight: 5,
   },
-  message:{
-    color:'crimson',
-    fontWeight:500,
-    paddingBottom:10,
-
+  message: {
+    color: "crimson",
+    fontWeight: 500,
+    paddingBottom: 10,
   },
 });
 

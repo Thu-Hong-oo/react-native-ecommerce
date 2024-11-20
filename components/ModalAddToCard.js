@@ -17,8 +17,8 @@ import {
   increaseQuantity,
   decreaseQuantity,
 } from "../redux/slices/cartSlice";
-
-export default function CartModal({ visible, onClose }) {
+import { useNavigation } from "@react-navigation/native";
+export default function CartModal({ visible, onClose, buttonType }) {
   const user = useSelector((state) => state.user.user);
   const selectedProduct = useSelector((state) => state.product.selectedProduct);
   const dispatch = useDispatch();
@@ -26,6 +26,7 @@ export default function CartModal({ visible, onClose }) {
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [currentImage, setCurrentImage] = useState(selectedProduct.mainImage); // State for current image
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (selectedOption) {
@@ -70,6 +71,21 @@ export default function CartModal({ visible, onClose }) {
       console.error("Failed to add item to Firestore:", error);
     }
   };
+  const handleBuyNow = () => {
+    const product = {
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      quantity: quantity,
+      option: selectedOption,
+      size: selectedSize,
+      img: currentImage,
+    };
+
+    // Navigate to Checkout screen with product data
+    navigation.navigate("Checkout", { product });
+    onClose();
+  };
 
   const handleDecreaseQuantity = () => {
     if (quantity > 1) {
@@ -103,28 +119,30 @@ export default function CartModal({ visible, onClose }) {
                 $ {(selectedProduct.price * quantity).toFixed(2)}
               </Text>
             </View>
-
-            <Text style={styles.colorText}>Options</Text>
-            <View style={styles.colorContainer}>
-              {selectedProduct.subImages &&
-                selectedProduct.subImages.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.colorButton,
-                      selectedOption === item.name && styles.selectedButton,
-                    ]}
-                    on
-                    onPress={() => {
-                      setSelectedOption(item.name);
-                      setSelectedSize(null); // Reset size khi chọn option khác
-                    }}
-                  >
-                    <Text style={styles.buttonText}>{item.name}</Text>
-                  </TouchableOpacity>
-                ))}
-            </View>
-
+            {selectedProduct.subImages && (
+              <>
+                <Text style={styles.colorText}>Options</Text>
+                <View style={styles.colorContainer}>
+                  {selectedProduct.subImages &&
+                    selectedProduct.subImages.map((item, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.colorButton,
+                          selectedOption === item.name && styles.selectedButton,
+                        ]}
+                        on
+                        onPress={() => {
+                          setSelectedOption(item.name);
+                          setSelectedSize(null); // Reset size khi chọn option khác
+                        }}
+                      >
+                        <Text style={styles.buttonText}>{item.name}</Text>
+                      </TouchableOpacity>
+                    ))}
+                </View>
+              </>
+            )}
             {/* Sizes  */}
             {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
               <>
@@ -165,15 +183,15 @@ export default function CartModal({ visible, onClose }) {
               </View>
             </View>
 
-            <TouchableOpacity
-              style={[styles.buttonAddOrBuy]}
-              onPress={() => {
-                handleAddToCart();
-    
-              }}
-            >
-              <Text style={styles.textbuttonAddOrBuy}>Add to Cart</Text>
-            </TouchableOpacity>
+            {buttonType === "buyNow" ? (
+              <TouchableOpacity style={styles.button} onPress={handleBuyNow}>
+                <Text style={styles.textbutton}>Buy Now</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.button} onPress={handleAddToCart}>
+                <Text style={styles.textbutton}>Add to Cart</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </Modal>
@@ -205,6 +223,7 @@ const styles = StyleSheet.create({
   imgModal: {
     width: 80,
     height: 80,
+    resizeMode: "contain",
   },
   imgAndPrice: {
     flexDirection: "row",
@@ -230,7 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     marginBottom: 50,
   },
-  buttonAddOrBuy: {
+  button: {
     width: "100%",
     backgroundColor: COLORS.primary,
     justifyContent: "center",
@@ -239,7 +258,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 20,
   },
-  textbuttonAddOrBuy: {
+  textbutton: {
     color: "white",
     fontWeight: "bold",
     fontSize: 15,
