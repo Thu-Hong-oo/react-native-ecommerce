@@ -84,6 +84,29 @@ export const createOrder = async (userInfo, selectedItems, totalPrice, voucher, 
     
     console.log("Đơn hàng đã được tạo với ID: ", docRef.id);
    
+    // Cập nhật số lượng sản phẩm trong Product database
+    for (const item of selectedItems) {
+      const productId = item.productId;
+      const quantity = item.quantity;
+      console.log("quantity",quantity);
+      console.log("productId",productId);
+
+      // Truy vấn để tìm sản phẩm theo productId
+      const productDocRef = doc(db, "Products", productId);
+      const productDoc = await getDoc(productDocRef);
+
+      if (productDoc.exists()) {
+        const productData = productDoc.data();
+        const newQuantity = productData.quantity - quantity;
+        console.log("productData",productId);
+        console.log("newQuantity",newQuantity);
+        // Cập nhật số lượng sản phẩm trong Product
+        await updateDoc(productDocRef, { quantity: newQuantity });
+      } else {
+        console.log(`Sản phẩm với ID ${productId} không tồn tại.`);
+      }
+    }
+
 
     // Kiểm tra voucher
     if (voucher && voucher.code) {

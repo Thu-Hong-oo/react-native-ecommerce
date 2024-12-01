@@ -55,7 +55,7 @@ export default function Screen08({ navigation }) {
       <View style={styles.header}>
         <View style={styles.row}>
           <View style={styles.itemLeft}>
-            <Pressable>
+            <Pressable onPress={() => navigation.goBack()}>
               <Icon name="left" type="antdesign" size={20} color="gray" />
             </Pressable>
             <Text style={styles.alldeals}>Payment</Text>
