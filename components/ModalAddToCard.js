@@ -72,8 +72,9 @@ export default function CartModal({ visible, onClose, buttonType }) {
     }
   };
   const handleBuyNow = () => {
+    const id = selectedProduct.id;
     const product = {
-      id: selectedProduct.id,
+      id,
       name: selectedProduct.name,
       price: selectedProduct.price,
       quantity: quantity,
@@ -81,7 +82,7 @@ export default function CartModal({ visible, onClose, buttonType }) {
       size: selectedSize,
       img: currentImage,
     };
-
+    console.log("product",product);
     // Navigate to Checkout screen with product data
     navigation.navigate("Checkout", { product });
     onClose();
