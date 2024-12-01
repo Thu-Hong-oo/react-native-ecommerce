@@ -71,7 +71,7 @@ export default function CartModal({ visible, onClose, buttonType }) {
       console.error("Failed to add item to Firestore:", error);
     }
   };
-  const handleBuyNow = () => {
+  const handleBuyNow =() => {
     const id = selectedProduct.id;
     const product = {
       id,
