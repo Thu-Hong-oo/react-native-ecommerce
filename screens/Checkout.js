@@ -49,12 +49,17 @@ const Screen07 = ({ route, navigation }) => {
       // Cập nhật Redux
       dispatch(setVoucher(voucherInfo)); // Lưu voucher vào Redux
       dispatch(setFinalPrice(totalPrice - discountAmount)); // Cập nhật giá trị cuối cùng
+      return true;
     } catch (error) {
       setMessage(error.message);
+      return true;
     }
   };
 
   const handleNext = async () => {
+    if(!voucherCode || !handlegetInfoFromVoucher){
+      dispatch(setVoucher(null));
+    }
     dispatch(setFinalPrice(finalPrice));
     navigation.navigate("PaymentMethod");
   };

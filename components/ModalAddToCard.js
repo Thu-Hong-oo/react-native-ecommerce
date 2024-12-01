@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons"; // Icon library
-import COLORS from "../components/Colors";
+import COLORS from "./Colors";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addToCart,
