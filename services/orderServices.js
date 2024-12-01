@@ -103,7 +103,7 @@ export const createOrder = async (userInfo, selectedItems, totalPrice, voucher, 
         console.log("Voucher không tồn tại.");
       }
     }
-    
+    setVoucher(null);
     return docRef.id; // Trả về ID của đơn hàng vừa tạo
   } catch (error) {
     console.error("Lỗi khi tạo đơn hàng: ", error);

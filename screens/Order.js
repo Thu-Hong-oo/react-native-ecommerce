@@ -3,89 +3,111 @@ import {
   View,
   Text,
   Image,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
+  FlatList,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
+import { db } from "../config/firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
 import COLORS from "../components/Colors";
-import Icon from "react-native-vector-icons/FontAwesome";
 
-export default function Order({navigation}) {
-  const [activeTab, setActiveTab] = useState("order");
+export default function Order({ navigation }) {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "Order"));
+        const ordersData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setOrders(ordersData);
+      } catch (error) {
+        console.error("Lỗi khi lấy đơn hàng:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()}>
-          <Icon name="chevron-left" type="fontawesome" size={20} color="#555" />
+          <Text style={styles.headerTitle}>Order History</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>My Order</Text>
-        <Text></Text>
       </View>
 
-      {/* Tabs */}
-      <View style={styles.tabs}>
-        <TouchableOpacity onPress={() => setActiveTab("order")}>
-          <Text style={activeTab === "order" ? styles.tabActive : styles.tab}>
-            Order
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setActiveTab("history")}>
-          <Text style={activeTab === "history" ? styles.tabActive : styles.tab}>
-            History
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Orders */}
-      <View style={styles.orderCard}>
-        <Image
-          source={{ uri: "https://placehold.co/80x80" }}
-          style={styles.productImage}
-        />
-        <View style={styles.productDetails}>
-          <Text style={styles.productTitle}>Bix Bag Limited Edition 229</Text>
-          <Text style={styles.productInfo}>Color: Berown</Text>
-          <Text style={styles.productInfo}>Qty: 1</Text>
-        </View>
-        <View style={styles.orderStatus}>
-          <Text style={styles.statusBadge}>On Progress</Text>
-          <Text style={styles.productPrice}>$ 24.00</Text>
-        </View>
-      </View>
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.detailButton}>
-          <Text style={styles.detailButtonText}>Detail</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.trackingButton}>
-          <Text style={styles.trackingButtonText}>Tracking</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.orderCard}>
-        <Image
-          source={{ uri: "https://placehold.co/80x80" }}
-          style={styles.productImage}
-        />
-        <View style={styles.productDetails}>
-          <Text style={styles.productTitle}>Bix Bag 319</Text>
-          <Text style={styles.productInfo}>Color: Berown</Text>
-          <Text style={styles.productInfo}>Qty: 1</Text>
-        </View>
-        <View style={styles.orderStatus}>
-          <Text style={styles.statusBadge}>On Progress</Text>
-          <Text style={styles.productPrice}>$ 21.50</Text>
-        </View>
-      </View>
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.detailButton}>
-          <Text style={styles.detailButtonText}>Detail</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.trackingButton}>
-          <Text style={styles.trackingButtonText}>Tracking</Text>
-        </TouchableOpacity>
-      </View>
+      <FlatList
+        data={orders}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.orderCard}>
+            <View style={styles.orderHeader}>
+              <View style={styles.sellerInfo}>
+                <Image
+                  source={{ uri: "https://storage.googleapis.com/a1aa/image/RKPwRekIaxzZJCb24xHif6YrSMeYDSt9O3NdBlba2q64bfXPB.jpg" }} // Icon của cửa hàng
+                  style={styles.mallIcon}
+                />
+                <Text style={styles.sellerName}>{item.userName}</Text>
+              </View>
+              <View style={styles.actionButtons}>
+                <Pressable style={styles.chatButton}>
+                  <Text style={styles.buttonText}>Chat</Text>
+                </Pressable>
+              </View>
+            </View>
+            <View style={styles.orderBody}>
+              {item.selectedItems.map((product, index) => (
+                <View key={index} style={styles.productInfo}>
+                  <Image
+                    source={{ uri: product.img }}
+                    style={styles.productImage}
+                  />
+                  <View style={styles.productDetails}>
+                    <Text style={styles.productName}>{product.name}</Text>
+                    <Text style={styles.productQuantity}>x{product.quantity}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+            <View style={styles.orderFooter}>
+              <View style={styles.footerButtons}>
+                <Pressable style={styles.reorderButton}>
+                  <Text style={styles.buttonText}>Reorder</Text>
+                </Pressable>
+                <Pressable style={styles.contactButton}>
+                  <Text style={styles.buttonText}>Contact Seller</Text>
+                </Pressable>
+              </View>
+              <View style={styles.priceInfo}>
+                <Text style={styles.originalPrice}>
+                  ₫{item.totalPrice}
+                </Text>
+                <Text style={styles.finalPrice}>
+                  ₫{item.finalPrice}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+        contentContainerStyle={styles.orderList}
+      />
     </ScrollView>
   );
 }
@@ -93,121 +115,135 @@ export default function Order({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#f5f5f5",
     padding: 16,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  loadingText: {
+    marginTop: 8,
+    fontSize: 16,
+    color: COLORS.primary,
+  },
+  header: {
     marginBottom: 16,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1F2937",
-  },
-  tabs: {
-    flexDirection: "row",
-    marginBottom: 16,
-    justifyContent: "space-around",
-  },
-  tab: {
-    fontSize: 16,
-    color: "#6B7280",
-    marginRight: 16,
-  },
-  tabActive: {
-    fontSize: 16,
-    fontWeight: "500",
-    borderBottomWidth: 2,
-    borderColor: COLORS.primary,
-    marginRight: 16,
-    paddingHorizontal: 10,
-    paddingBottom: 5,
-  },
-  activeTabText: {
+    fontSize: 24,
+    fontWeight: "bold",
     color: COLORS.primary,
-    fontWeight: "600",
-  },
-  inactiveTabText: {
-    color: "#9CA3AF",
-    marginHorizontal: 16,
   },
   orderCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-    padding: 16,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  orderHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  sellerInfo: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+  },
+  mallIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+  sellerName: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  actionButtons: {
+    flexDirection: "row",
+  },
+  chatButton: {
+    backgroundColor: "#e0e0e0",
+    borderRadius: 5,
+    padding: 5,
+    marginRight: 10,
+  },
+  shopButton: {
+    backgroundColor: "#e0e0e0",
+    borderRadius: 5,
+    padding: 5,
+  },
+  buttonText: {
+    color: "#333",
+    fontSize: 14,
+  },
+  orderBody: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  productInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
   },
   productImage: {
-    width: 80,
-    height: 80,
+    width: 100,
+    height: 100,
     borderRadius: 8,
-    marginRight: 16,
+    marginRight: 15,
   },
   productDetails: {
     flex: 1,
   },
-  productTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: 4,
-  },
-  productInfo: {
-    fontSize: 12,
-    color: "#9CA3AF",
-  },
-  orderStatus: {
-    alignItems: "flex-end",
-  },
-  statusBadge: {
-    backgroundColor: "#DBEAFE",
-    color: "#2563EB",
-    fontSize: 12,
-    fontWeight: "500",
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 16,
-  },
-  productPrice: {
+  productName: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginTop: 8,
+    fontWeight: "bold",
   },
-  buttonsContainer: {
+  productQuantity: {
+    color: "#777",
+  },
+  orderFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 16,
+    alignItems: "center",
+    marginTop: 15,
   },
-  detailButton: {
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+  footerButtons: {
+    flexDirection: "row",
   },
-  detailButtonText: {
+  reorderButton: {
+    backgroundColor: "#ff5722",
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
+  },
+  contactButton: {
+    backgroundColor: "#e0e0e0",
+    borderRadius: 5,
+    padding: 10,
+  },
+  priceInfo: {
+    alignItems: "flex-end",
+  },
+  originalPrice: {
+    textDecorationLine: "line-through",
+    color: "#9e9e9e",
     fontSize: 14,
-    color: "#6B7280",
   },
-  trackingButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+  finalPrice: {
+    color: "#ff5722",
+    fontSize: 18,
+    fontWeight: "bold",
   },
-  trackingButtonText: {
-    fontSize: 14,
-    color: "#FFFFFF",
+  orderList: {
+    paddingBottom: 20,
   },
 });

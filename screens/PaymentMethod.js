@@ -30,20 +30,21 @@ export default function Screen08({ navigation }) {
   const handleOrder = async () => {
     const paymentMethod =
       checked === "first" ? "Thanh toán khi nhận hàng" : "Chuyển khoản";
-      dispatch(setPaymentMethod(paymentMethod));
-
+    dispatch(setPaymentMethod(paymentMethod));
+  
     try {
+      // Chỉ truyền voucher vào createOrder nếu nó hợp lệ
       const orderId = await createOrder(
         user,
         selectedItems,
         totalPrice,
-        voucher,
+        voucher && voucher.code ? voucher : null, // Chỉ truyền voucher nếu nó có code
         finalPrice,
         paymentMethod
       );
       console.log("Order created with ID:", orderId);
       navigation.navigate("OrderSucess");
-
+  
     } catch (error) {
       console.error("Error creating order:", error);
     }
