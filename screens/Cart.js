@@ -118,34 +118,42 @@ export default function Cart({ navigation }) {
     }
   }, [dispatch, userId]);
 
-  const handleUpdateQuantity = (firestoreId, newQuantity) => {
+  const handleUpdateQuantity = async (firestoreId, newQuantity) => {
     if (!userId) {
-      console.error("User  ID is not defined");
-      return;
+        console.error("User  ID is not defined");
+        return;
     }
     if (!firestoreId) {
-      console.error("Firestore ID is required");
-      return;
+        console.error("Firestore ID is required");
+        return;
     }
 
     console.log(
-      "Updating quantity for Firestore ID:",
-      firestoreId,
-      "to",
-      newQuantity
+        "Updating quantity for Firestore ID:",
+        firestoreId,
+        "to",
+        newQuantity
     );
 
-    dispatch(
-      updateCartItemQuantity({ firestoreId, quantity: newQuantity, userId })
-    )
-      .unwrap()
-      .then(() => {
+    try {
+        await dispatch(
+            updateCartItemQuantity({ firestoreId, quantity: newQuantity, userId })
+        ).unwrap();
         console.log("Quantity updated successfully");
-      })
-      .catch((err) => {
+
+        // Cập nhật selectedItems với số lượng mới
+        setSelectedItemsState((prevState) => {
+            return prevState.map((item) => {
+                if (item.firestoreId === firestoreId) {
+                    return { ...item, quantity: newQuantity }; // Cập nhật số lượng
+                }
+                return item;
+            });
+        });
+    } catch (err) {
         console.error("Failed to update quantity:", err);
-      });
-  };
+    }
+};
 
   const handleRemoveItem = (firestoreId) => {
     dispatch(removeFromCart({ userId, firestoreId }))
@@ -167,14 +175,14 @@ export default function Cart({ navigation }) {
   const handleProceedToCheckout = () => {
     // Tính toán totalPrice cho các sản phẩm đã chọn
     const total = selectedItems.reduce((acc, item) => {
-      const itemPrice = item.price * (item.quantity || 1); // Tính giá cho từng sản phẩm
-      return acc + itemPrice; // Cộng dồn vào tổng
+        const itemPrice = item.price * item.quantity; // Sử dụng số lượng đã cập nhật
+        return acc + itemPrice; // Cộng dồn vào tổng
     }, 0);
 
     dispatch(setSelectedItems(selectedItems)); // Lưu các sản phẩm đã chọn vào orderSlice
     dispatch(setTotalPrice(total)); // Lưu totalPrice vào orderSlice
     navigation.navigate("Checkout"); // Chuyển hướng đến màn hình Checkout
-  };
+};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

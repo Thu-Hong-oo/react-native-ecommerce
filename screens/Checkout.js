@@ -28,6 +28,7 @@ const Screen07 = ({ route, navigation }) => {
   const productFromRoute = route.params?.product;
   // Tính tổng giá trị đơn hàng
   useEffect(() => {
+    console.log(selectedItems);
     const items = productFromRoute ? [productFromRoute] : selectedItems; // Use product if available
     const total = selectedItems.reduce(
       (acc, item) => acc + item.price * item.quantity,
