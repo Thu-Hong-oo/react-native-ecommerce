@@ -67,7 +67,7 @@ export default function Screen08({ navigation }) {
       }
 
       // Dispatch hành động để xóa các sản phẩm đã thanh toán khỏi Redux state
-      dispatch(removePurchasedItems(firestoreId)); // Truyền mảng firestoreId
+      // dispatch(removePurchasedItems(firestoreId)); // Truyền mảng firestoreId
       navigation.navigate("OrderSucess");
     } catch (error) {
       console.error("Lỗi khi tạo đơn hàng:", error);

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons"; // Icon library
-import COLORS from "../components/Colors";
+import COLORS from "./Colors";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addToCart,
@@ -71,9 +71,10 @@ export default function CartModal({ visible, onClose, buttonType }) {
       console.error("Failed to add item to Firestore:", error);
     }
   };
-  const handleBuyNow = () => {
+  const handleBuyNow =() => {
+    const id = selectedProduct.id;
     const product = {
-      id: selectedProduct.id,
+      id,
       name: selectedProduct.name,
       price: selectedProduct.price,
       quantity: quantity,
@@ -81,7 +82,7 @@ export default function CartModal({ visible, onClose, buttonType }) {
       size: selectedSize,
       img: currentImage,
     };
-
+    console.log("product",product);
     // Navigate to Checkout screen with product data
     navigation.navigate("Checkout", { product });
     onClose();

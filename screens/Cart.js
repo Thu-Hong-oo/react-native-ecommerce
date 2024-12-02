@@ -98,6 +98,7 @@ const CartRender = ({
             message="Bạn có chắc chắn muốn xóa sản phẩm này ra khỏi giỏ hàng?"
             onConfirm={handleConfirm}
             onCancel={handleCancel}
+            singleButton={false}
           />
           <Icon
             name="delete-sweep-outline"
@@ -147,8 +148,14 @@ export default function Cart({ navigation }) {
   const handleRemoveItem = (firestoreId) => {
     dispatch(removeFromCart({ userId, firestoreId }))
       .unwrap()
-      .then(() => console.log("Item removed successfully"))
-      .catch((err) => console.error("Failed to remove item:", err));
+      .then(() => {
+        console.log("Item removed successfully");
+        // Cập nhật lại trạng thái giỏ hàng trong Redux
+        dispatch(fetchCartItems(userId)); // Lấy lại danh sách giỏ hàng mới
+      })
+      .catch((err) => {
+        console.error("Failed to remove item:", err);
+      });
   };
 
   const handleCheckboxChange = (item, isChecked) => {
@@ -217,11 +224,18 @@ export default function Cart({ navigation }) {
         <Text style={styles.summaryText}>Total:</Text>
         <Text style={styles.summaryPrice}>
           $
-          {items
-            .filter((item) =>
-              selectedItems.some((selectedItem) => selectedItem.id === item.id)
-            ) // Lọc các sản phẩm đã chọn
-            .reduce((acc, item) => acc + item.price * (item.quantity || 1), 0) // Tính tổng giá
+          {selectedItems
+            .reduce((acc, selectedItem) => {
+              // Tìm sản phẩm trong items dựa trên firestoreId
+              const item = items.find(
+                (item) => item.firestoreId === selectedItem.firestoreId
+              );
+              if (item) {
+                // Nếu tìm thấy sản phẩm, cộng dồn giá trị
+                return acc + item.price * (selectedItem.quantity || 1);
+              }
+              return acc; // Nếu không tìm thấy, trả về giá trị tích lũy
+            }, 0) // Khởi tạo giá trị tích lũy là 0
             .toFixed(2)}
         </Text>
       </View>
