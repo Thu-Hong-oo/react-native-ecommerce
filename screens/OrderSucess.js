@@ -28,12 +28,6 @@ export default function Screen09({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.row}>
-          <View style={styles.itemLeft}>
-            <Pressable onPress={() => navigation.goBack()}>
-              <Icon name="left" type="antdesign" size={20} color="gray" />
-            </Pressable>
-            <Text style={styles.alldeals}>Payment</Text>
-          </View>
         </View>
       </View>
 
@@ -80,10 +74,8 @@ export default function Screen09({ navigation }) {
           </View>
 
           <View style={styles.backToHome}>
-            <Pressable
-              style={styles.buttonBackToHome}
-              onPress={() => handleBackToHome()}
-            >
+            <Pressable style={styles.buttonBackToHome} onPress={()=>navigation.navigate('Home')}>
+
               <Icon name="house" color="white" size={32} />
               <Text style={styles.buttonBackToHomeText}>Back to home </Text>
             </Pressable>

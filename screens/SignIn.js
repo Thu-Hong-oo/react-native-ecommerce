@@ -107,6 +107,7 @@ const SignIn = ({ navigation }) => {
             setModalMessage("Login successful!"); // Cập nhật thông điệp
             setModalVisible(true); // Hiển thị modal
             // Đặt singleButton thành true để chỉ hiển thị nút OK
+
             navigation.navigate("Home");
           }
         })

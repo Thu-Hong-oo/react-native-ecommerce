@@ -71,7 +71,8 @@ export default function CartModal({ visible, onClose, buttonType }) {
       console.error("Failed to add item to Firestore:", error);
     }
   };
-  const handleBuyNow =() => {
+
+  const handleBuyNow = () => {
     const id = selectedProduct.id;
     const product = {
       id,
@@ -82,7 +83,8 @@ export default function CartModal({ visible, onClose, buttonType }) {
       size: selectedSize,
       img: currentImage,
     };
-    console.log("product",product);
+    console.log("product", product);
+
     // Navigate to Checkout screen with product data
     navigation.navigate("Checkout", { product });
     onClose();

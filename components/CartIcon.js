@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from "react-native";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import { Badge } from "react-native-elements";
 import { useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native"; 
+import { useNavigation } from "@react-navigation/native";
 import { selectTotalQuantityById } from "../redux/slices/cartSlice";
 import COLORS from "../components/Colors";
 

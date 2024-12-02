@@ -123,7 +123,7 @@ export default function Cart({ navigation }) {
     }
   }, [dispatch, userId]);
 
-  const handleUpdateQuantity = (firestoreId, newQuantity) => {
+  const handleUpdateQuantity = async (firestoreId, newQuantity) => {
     if (!userId) {
       console.error("User  ID is not defined");
       return;
@@ -132,17 +132,31 @@ export default function Cart({ navigation }) {
       console.error("Firestore ID is required");
       return;
     }
+    console.log(
+      "Updating quantity for Firestore ID:",
+      firestoreId,
+      "to",
+      newQuantity
+    );
 
-    dispatch(
-      updateCartItemQuantity({ firestoreId, quantity: newQuantity, userId })
-    )
-      .unwrap()
-      .then(() => {
-        console.log("Quantity updated successfully");
-      })
-      .catch((err) => {
-        console.error("Failed to update quantity:", err);
+    try {
+      await dispatch(
+        updateCartItemQuantity({ firestoreId, quantity: newQuantity, userId })
+      ).unwrap();
+      console.log("Quantity updated successfully");
+
+      // Cập nhật selectedItems với số lượng mới
+      setSelectedItemsState((prevState) => {
+        return prevState.map((item) => {
+          if (item.firestoreId === firestoreId) {
+            return { ...item, quantity: newQuantity }; // Cập nhật số lượng
+          }
+          return item;
+        });
       });
+    } catch (err) {
+      console.error("Failed to update quantity:", err);
+    }
   };
 
   const handleRemoveItem = (firestoreId) => {
@@ -184,13 +198,13 @@ export default function Cart({ navigation }) {
 
   const handleProceedToCheckout = () => {
     const total = selectedItems.reduce((acc, item) => {
-      const itemPrice = item.price * (item.quantity || 1);
-      return acc + itemPrice;
+      const itemPrice = item.price * item.quantity; // Sử dụng số lượng đã cập nhật
+      return acc + itemPrice; // Cộng dồn vào tổng
     }, 0);
 
-    dispatch(setSelectedItems(selectedItems));
-    dispatch(setTotalPrice(total));
-    navigation.navigate("Checkout");
+    dispatch(setSelectedItems(selectedItems)); // Lưu các sản phẩm đã chọn vào orderSlice
+    dispatch(setTotalPrice(total)); // Lưu totalPrice vào orderSlice
+    navigation.navigate("Checkout"); // Chuyển hướng đến màn hình Checkout
   };
 
   return (

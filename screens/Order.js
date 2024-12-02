@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,12 +12,13 @@ import {
 import { db } from "../config/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import COLORS from "../components/Colors";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Order({ navigation }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useFocusEffect(() => {
     const fetchOrders = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "Order"));
@@ -68,11 +69,6 @@ export default function Order({ navigation }) {
                 />
                 <Text style={styles.sellerName}>{item.userName}</Text>
               </View>
-              <View style={styles.actionButtons}>
-                <Pressable style={styles.chatButton}>
-                  <Text style={styles.buttonText}>Chat</Text>
-                </Pressable>
-              </View>
             </View>
             <View style={styles.orderBody}>
               {item.selectedItems.map((product, index) => (
@@ -93,15 +89,18 @@ export default function Order({ navigation }) {
             <View style={styles.orderFooter}>
               <View style={styles.footerButtons}>
                 <Pressable style={styles.reorderButton}>
-                  <Text style={styles.buttonText}>Reorder</Text>
+                  <Text style={styles.buttonText}>Hủy</Text>
                 </Pressable>
                 <Pressable style={styles.contactButton}>
-                  <Text style={styles.buttonText}>Contact Seller</Text>
+                  <Text style={styles.buttonText}>Xem chi tiết</Text>
                 </Pressable>
               </View>
               <View style={styles.priceInfo}>
-                <Text style={styles.originalPrice}>₫{item.totalPrice}</Text>
-                <Text style={styles.finalPrice}>₫{item.finalPrice}</Text>
+                {item.totalPrice !== item.finalPrice && (
+                  <Text style={styles.originalPrice}>${item.totalPrice}</Text>
+                )}
+
+                <Text style={styles.finalPrice}>${item.finalPrice}</Text>
               </View>
             </View>
           </View>
@@ -181,7 +180,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   buttonText: {
-    color: "#333",
+    color: "white",
     fontSize: 14,
   },
   orderBody: {
