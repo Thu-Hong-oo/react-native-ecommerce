@@ -11,17 +11,25 @@ import {
   ImageBackground,
 } from "react-native";
 import { Icon, Rating } from "react-native-elements";
-import { useSelector} from "react-redux";
+import { useSelector } from "react-redux";
+import COLORS from "../components/Colors";
+import { useNavigation } from "@react-navigation/native";
+
 export default function Screen09({ navigation }) {
   const finalPrice = useSelector((state) => state.order.finalPrice);
   const totalPrice = useSelector((state) => state.order.totalPrice);
   const paymentMethod = useSelector((state) => state.order.paymentMethod);
+  const handleBackToHome = () => {
+    // Điều hướng về trang chủ
+    navigation.navigate("Home");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.row}>
           <View style={styles.itemLeft}>
-            <Pressable>
+            <Pressable onPress={() => navigation.goBack()}>
               <Icon name="left" type="antdesign" size={20} color="gray" />
             </Pressable>
             <Text style={styles.alldeals}>Payment</Text>
@@ -49,7 +57,9 @@ export default function Screen09({ navigation }) {
             </View>
 
             <View style={styles.paymentDetailEach}>
-              <Text style={styles.paymentDetailEachText1}>Số tiền cần thanh toán</Text>
+              <Text style={styles.paymentDetailEachText1}>
+                Số tiền cần thanh toán
+              </Text>
               <Text style={styles.paymentDetailEachText1}>${finalPrice}</Text>
             </View>
 
@@ -58,19 +68,22 @@ export default function Screen09({ navigation }) {
             </View>
 
             <View style={styles.paymentDetailEach}>
-              <Text style={styles.paymentDetailEachText1}>Phương thức thanh toán</Text>
+              <Text style={styles.paymentDetailEachText1}>
+                Phương thức thanh toán
+              </Text>
               <View style={{ flexDirection: "row" }}>
-                <Text style={styles.paymentDetailEachText1}>{paymentMethod}</Text>
+                <Text style={styles.paymentDetailEachText1}>
+                  {paymentMethod}
+                </Text>
               </View>
             </View>
-
-            
           </View>
 
-          
-
           <View style={styles.backToHome}>
-            <Pressable style={styles.buttonBackToHome}>
+            <Pressable
+              style={styles.buttonBackToHome}
+              onPress={() => handleBackToHome()}
+            >
               <Icon name="house" color="white" size={32} />
               <Text style={styles.buttonBackToHomeText}>Back to home </Text>
             </Pressable>
@@ -171,7 +184,7 @@ const styles = StyleSheet.create({
     flex: 1.3,
   },
   buttonBackToHome: {
-    backgroundColor: "#FF6026",
+    backgroundColor: COLORS.primary,
     flexDirection: "row",
     justifyContent: "center",
     borderRadius: 6,

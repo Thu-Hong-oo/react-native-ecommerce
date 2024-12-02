@@ -8,9 +8,17 @@ const orderSlice = createSlice({
     totalPrice: 0, // Tổng giá trị đơn hàng
     voucher: null, // Giá trị giảm giá
     finalPrice: 0, // Giá trị cuối cùng sau khi giảm giá
-    paymentMethod:null,
+    paymentMethod: null,
   },
   reducers: {
+    // Action to remove purchased items
+    removePurchasedItems(state, action) {
+      const purchasedProductIds = action.payload;
+      state.items = state.items.filter(
+        (item) => !purchasedProductIds.includes(item.id)
+      );
+    },
+
     setSelectedItems(state, action) {
       state.selectedItems = action.payload; // Lưu danh sách sản phẩm đã chọn
     },
@@ -30,7 +38,14 @@ const orderSlice = createSlice({
 });
 
 // Xuất các action để sử dụng trong các component
-export const { setSelectedItems, setTotalPrice, setVoucher, setFinalPrice, setPaymentMethod } = orderSlice.actions;
+export const {
+  setSelectedItems,
+  setTotalPrice,
+  setVoucher,
+  setFinalPrice,
+  setPaymentMethod,
+  removePurchasedItems,
+} = orderSlice.actions;
 
 // Xuất reducer để sử dụng trong store
 export default orderSlice.reducer;

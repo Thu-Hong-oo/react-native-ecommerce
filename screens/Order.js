@@ -61,7 +61,9 @@ export default function Order({ navigation }) {
             <View style={styles.orderHeader}>
               <View style={styles.sellerInfo}>
                 <Image
-                  source={{ uri: "https://storage.googleapis.com/a1aa/image/RKPwRekIaxzZJCb24xHif6YrSMeYDSt9O3NdBlba2q64bfXPB.jpg" }} // Icon của cửa hàng
+                  source={{
+                    uri: "https://storage.googleapis.com/a1aa/image/RKPwRekIaxzZJCb24xHif6YrSMeYDSt9O3NdBlba2q64bfXPB.jpg",
+                  }} // Icon của cửa hàng
                   style={styles.mallIcon}
                 />
                 <Text style={styles.sellerName}>{item.userName}</Text>
@@ -81,7 +83,9 @@ export default function Order({ navigation }) {
                   />
                   <View style={styles.productDetails}>
                     <Text style={styles.productName}>{product.name}</Text>
-                    <Text style={styles.productQuantity}>x{product.quantity}</Text>
+                    <Text style={styles.productQuantity}>
+                      x{product.quantity}
+                    </Text>
                   </View>
                 </View>
               ))}
@@ -96,12 +100,8 @@ export default function Order({ navigation }) {
                 </Pressable>
               </View>
               <View style={styles.priceInfo}>
-                <Text style={styles.originalPrice}>
-                  ₫{item.totalPrice}
-                </Text>
-                <Text style={styles.finalPrice}>
-                  ₫{item.finalPrice}
-                </Text>
+                <Text style={styles.originalPrice}>₫{item.totalPrice}</Text>
+                <Text style={styles.finalPrice}>₫{item.finalPrice}</Text>
               </View>
             </View>
           </View>
@@ -220,13 +220,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   reorderButton: {
-    backgroundColor: "#ff5722",
+    backgroundColor: COLORS.primary,
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
   },
   contactButton: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: COLORS.primary,
     borderRadius: 5,
     padding: 10,
   },

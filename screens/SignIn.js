@@ -20,7 +20,7 @@ import {
   getRedirectResult,
   signInWithPopup,
 } from "firebase/auth";
-import { fetchUserData } from "../services/firestoreServices";
+import { fetchUserData } from "../services/userServices";
 const SignIn = ({ navigation }) => {
   const dispatch = useDispatch(); // Khởi tạo dispatch
   const [email, setEmail] = useState("thuhong05022003@gmail.com");

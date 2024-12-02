@@ -1,4 +1,4 @@
-// src/services/firestoreService.js
+// src/services/userService.js
 
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db, auth } from "../config/firebaseConfig";

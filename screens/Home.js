@@ -31,6 +31,8 @@ export default function Home({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
   const favorites = useSelector((state) => state.favorites.items);
+  const [showAllProducts, setShowAllProducts] = useState(false);
+  const displayedProducts = showAllProducts ? products : products.slice(0, 6);
 
   useEffect(() => {
     dispatch(fetchCartItems(user.id));
@@ -84,7 +86,9 @@ export default function Home({ navigation }) {
           </TouchableOpacity>
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.itemName} numberOfLines={2} ellipsizeMode="tail">{item.name}</Text>
+          <Text style={styles.itemName} numberOfLines={2} ellipsizeMode="tail">
+            {item.name}
+          </Text>
           <Text style={styles.itemPrice}>{item.price}$</Text>
         </View>
       </TouchableOpacity>
@@ -126,16 +130,18 @@ export default function Home({ navigation }) {
 
       {activeTab === "home" && (
         <>
-          <Carousel />
+          {!showAllProducts && <Carousel />}{" "}
+          {/* Ẩn Carousel nếu showAllProducts là true */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>New Arrivals 🔥</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAll}>See All</Text>
-            </TouchableOpacity>
+            {!showAllProducts && (
+              <TouchableOpacity onPress={() => setShowAllProducts(true)}>
+                <Text style={styles.seeAll}>See All</Text>
+              </TouchableOpacity>
+            )}
           </View>
-
           <FlatList
-            data={products}
+            data={displayedProducts} // Hiển thị danh sách sản phẩm đã giới hạn
             renderItem={renderProduct}
             keyExtractor={(item) => item.id}
             numColumns={2}
@@ -250,7 +256,6 @@ const styles = StyleSheet.create({
   textContainer: {
     alignItems: "center",
     marginTop: 8,
-
   },
   itemName: {
     fontSize: 14,
