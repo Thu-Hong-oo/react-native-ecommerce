@@ -51,6 +51,7 @@ const SignIn = ({ navigation }) => {
             name: userData.personal_information.personal_info.full_name,
             avatar: userData.personal_information.personal_info.avatar || null,
             email: userData.personal_information.personal_info.email,
+            userData,
           })
         );
       }

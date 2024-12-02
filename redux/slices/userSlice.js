@@ -1,4 +1,3 @@
-// src/redux/userSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 // Trạng thái ban đầu
@@ -13,7 +12,12 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      state.user = action.payload; // Cập nhật người dùng
+      state.user = action.payload; // Cập nhật thông tin người dùng
+    },
+    updateUser: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload }; // Gộp thông tin mới vào thông tin hiện tại
+      }
     },
     logout: (state) => {
       state.user = null; // Xóa thông tin người dùng
@@ -21,5 +25,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, logout } = userSlice.actions;
+export const { setUser, updateUser, logout } = userSlice.actions;
 export default userSlice.reducer;

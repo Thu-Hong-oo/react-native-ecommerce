@@ -41,6 +41,7 @@ export default function Screen08({ navigation }) {
   console.log("Selected Items:", selectedItems);
   console.log("Firestore IDs to be removed:", firestoreId);
   console.log("removeProductId:", removeProductId);
+
   const handleOrder = async () => {
     const paymentMethod =
       checked === "first" ? "Thanh toán khi nhận hàng" : "Chuyển khoản";
@@ -56,11 +57,10 @@ export default function Screen08({ navigation }) {
         finalPrice,
         paymentMethod
       );
-      console.log("Order created with ID:", orderId); // Lấy các ID sản phẩm đã thanh toán (lấy từ selectedItems)
-      // Lặp qua mảng firestoreId và xóa từng sản phẩm trong Firestore
+      console.log("Order created with ID:", orderId); // Lấy các ID sản phẩm đã thanh toán 
       for (let i = 0; i < firestoreId.length; i++) {
         try {
-          await removeFromCartInService(userId, firestoreId[i]); // Xóa từng sản phẩm khỏi Firestore
+          await removeFromCartInService(userId, firestoreId[i]); // Xóa từng sản phẩm khỏi Firestore Cart
           console.log("Đã xóa sản phẩm khỏi Firestore:", firestoreId[i]);
         } catch (error) {
           console.error("Lỗi khi xóa sản phẩm khỏi Firestore:", error.message);

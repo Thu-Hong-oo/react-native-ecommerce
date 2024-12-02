@@ -1,4 +1,3 @@
-// redux/slices/orderSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const orderSlice = createSlice({
@@ -14,7 +13,7 @@ const orderSlice = createSlice({
     // Action to remove purchased items
     removePurchasedItems(state, action) {
       const purchasedProductIds = action.payload;
-      state.items = state.items.filter(
+      state.selectedItems = state.selectedItems.filter(
         (item) => !purchasedProductIds.includes(item.id)
       );
     },
@@ -32,7 +31,12 @@ const orderSlice = createSlice({
       state.finalPrice = action.payload; // Cập nhật finalPrice
     },
     setPaymentMethod(state, action) {
-      state.paymentMethod = action.payload; // Cập nhật finalPrice
+      state.paymentMethod = action.payload; // Cập nhật paymentMethod
+    },
+    buyNow(state, action) {
+      const product = action.payload; // Nhận sản phẩm từ action
+      state.selectedItems = [product]; // Đặt sản phẩm đã mua ngay vào selectedItems
+      state.totalPrice = product.price; // Cập nhật tổng giá trị đơn hàng
     },
   },
 });
@@ -45,6 +49,7 @@ export const {
   setFinalPrice,
   setPaymentMethod,
   removePurchasedItems,
+  buyNow, // Xuất action buyNow
 } = orderSlice.actions;
 
 // Xuất reducer để sử dụng trong store

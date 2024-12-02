@@ -17,6 +17,8 @@ import {
   increaseQuantity,
   decreaseQuantity,
 } from "../redux/slices/cartSlice";
+import { buyNow } from "../redux/slices/orderSlice";
+
 import { useNavigation } from "@react-navigation/native";
 export default function CartModal({ visible, onClose, buttonType }) {
   const user = useSelector((state) => state.user.user);
@@ -84,9 +86,9 @@ export default function CartModal({ visible, onClose, buttonType }) {
       img: currentImage,
     };
     console.log("product", product);
-
+    dispatch(buyNow(product));
     // Navigate to Checkout screen with product data
-    navigation.navigate("Checkout", { product });
+    navigation.navigate("Checkout");
     onClose();
   };
 

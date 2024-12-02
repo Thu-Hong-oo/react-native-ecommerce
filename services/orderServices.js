@@ -16,7 +16,10 @@ import { setVoucher } from "../redux/slices/orderSlice";
 export const getInfoFromVoucher = async (voucherCode) => {
   try {
     // Tạo một truy vấn để tìm tài liệu có trường 'code' trùng với voucherCode
-    const q = query(collection(db, "Voucher"), where("code", "==", voucherCode));
+    const q = query(
+      collection(db, "Voucher"),
+      where("code", "==", voucherCode)
+    );
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
@@ -24,7 +27,7 @@ export const getInfoFromVoucher = async (voucherCode) => {
     }
 
     // Lấy tài liệu đầu tiên trong kết quả
-    const docSnap = querySnapshot.docs[0]; 
+    const docSnap = querySnapshot.docs[0];
     const voucherData = docSnap.data();
 
     // Kiểm tra số lượng voucher
@@ -39,15 +42,30 @@ export const getInfoFromVoucher = async (voucherCode) => {
   }
 };
 
-export const createOrder = async (userInfo, selectedItems, totalPrice, voucher, finalPrice, paymentMethod) => {
+export const createOrder = async (
+  userInfo,
+  selectedItems,
+  totalPrice,
+  voucher,
+  finalPrice,
+  paymentMethod
+) => {
   try {
     // Kiểm tra các tham số đầu vào
-    if (!userInfo || !selectedItems || totalPrice === undefined || finalPrice === undefined || !paymentMethod) {
-      throw new Error("Thông tin đơn hàng không hợp lệ. Vui lòng kiểm tra lại.");
+    if (
+      !userInfo ||
+      !selectedItems ||
+      totalPrice === undefined ||
+      finalPrice === undefined ||
+      !paymentMethod
+    ) {
+      throw new Error(
+        "Thông tin đơn hàng không hợp lệ. Vui lòng kiểm tra lại."
+      );
     }
 
     // Loại bỏ trường createdAt khỏi từng đối tượng trong selectedItems
-    const sanitizedItems = selectedItems.map(item => {
+    const sanitizedItems = selectedItems.map((item) => {
       const { createdAt, ...sanitizedItem } = item; // Bỏ qua trường createdAt
       return sanitizedItem;
     });
@@ -61,19 +79,25 @@ export const createOrder = async (userInfo, selectedItems, totalPrice, voucher, 
     }
 
     const userData = userDoc.data();
-    const fullName = userData.personal_information?.personal_info?.full_name || "Không xác định"; // Lấy full_name
-    const shippingAddress = userData.shipping_address?.address_1 || "Không xác định"; // Lấy shipping_address
+    const fullName =
+      userData.personal_information?.personal_info?.full_name ||
+      "Không xác định"; // Lấy full_name
+    const shippingAddress =
+      userData.shipping_address?.address_1 || "Không xác định"; // Lấy shipping_address
 
     // Tạo một tài liệu đơn hàng mới trong Firestore
     const orderRef = collection(db, "Order");
-    
+
     const orderData = {
       userName: fullName, // Sử dụng fullName đã lấy được
       shippingAddress: shippingAddress, // Thêm địa chỉ giao hàng
       selectedItems: sanitizedItems, // Sử dụng danh sách đã được làm sạch
       totalPrice,
       voucherCode: voucher ? voucher.code : null, // Kiểm tra voucher có tồn tại không
-      voucherDiscount: voucher && typeof voucher.discount === 'number' ? `${voucher.discount * 100}%` : null, // Kiểm tra discount có hợp lệ không
+      voucherDiscount:
+        voucher && typeof voucher.discount === "number"
+          ? `${voucher.discount * 100}%`
+          : null, // Kiểm tra discount có hợp lệ không
       finalPrice,
       paymentMethod,
       createdAt: new Date(), // Thời gian tạo đơn hàng
@@ -81,15 +105,16 @@ export const createOrder = async (userInfo, selectedItems, totalPrice, voucher, 
 
     // Thêm đơn hàng vào collection
     const docRef = await addDoc(orderRef, orderData);
-    
+
     console.log("Đơn hàng đã được tạo với ID: ", docRef.id);
-   
+
     // Cập nhật số lượng sản phẩm trong Product database
     for (const item of selectedItems) {
-      const productId = item.productId;
+      const productId = item.id;
       const quantity = item.quantity;
-      console.log("quantity",quantity);
-      console.log("productId",productId);
+      console.log("item", item);
+      console.log("quantity", quantity);
+      console.log("productId", productId);
 
       // Truy vấn để tìm sản phẩm theo productId
       const productDocRef = doc(db, "Products", productId);
@@ -98,8 +123,8 @@ export const createOrder = async (userInfo, selectedItems, totalPrice, voucher, 
       if (productDoc.exists()) {
         const productData = productDoc.data();
         const newQuantity = productData.quantity - quantity;
-        console.log("productData",productId);
-        console.log("newQuantity",newQuantity);
+        console.log("productData", productId);
+        console.log("newQuantity", newQuantity);
         // Cập nhật số lượng sản phẩm trong Product
         await updateDoc(productDocRef, { quantity: newQuantity });
       } else {
@@ -107,17 +132,19 @@ export const createOrder = async (userInfo, selectedItems, totalPrice, voucher, 
       }
     }
 
-
     // Kiểm tra voucher
     if (voucher && voucher.code) {
       // Tạo truy vấn để tìm voucher theo code
-      const voucherQuery = query(collection(db, "Voucher"), where("code", "==", voucher.code));
+      const voucherQuery = query(
+        collection(db, "Voucher"),
+        where("code", "==", voucher.code)
+      );
       const voucherSnapshot = await getDocs(voucherQuery);
-      
+
       if (!voucherSnapshot.empty) {
         const voucherDoc = voucherSnapshot.docs[0]; // Lấy tài liệu đầu tiên
         const voucherData = voucherDoc.data();
-        
+
         // Giảm số lượng voucher
         await updateDoc(voucherDoc.ref, {
           quantity: voucherData.quantity - 1,

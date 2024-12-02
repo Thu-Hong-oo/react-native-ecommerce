@@ -1,5 +1,5 @@
-//screens/Checkout.js
-import React, { useState, useEffect } from "react";
+// screens/Checkout.js
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,56 +14,55 @@ import { Icon } from "react-native-elements";
 import COLORS from "../components/Colors";
 import { useSelector, useDispatch } from "react-redux";
 import { getInfoFromVoucher } from "../services/orderServices";
-import { setVoucher, setFinalPrice, setTotalPrice } from "../redux/slices/orderSlice";
+import {
+  setVoucher,
+  setFinalPrice,
+  setTotalPrice,
+} from "../redux/slices/orderSlice";
 
-const Screen07 = ({ route, navigation }) => {
+const Checkout = ({ navigation }) => {
   const selectedItems = useSelector((state) => state.order.selectedItems);
+  const totalPrice = useSelector((state) => state.order.totalPrice);
+  const finalPrice = useSelector((state) => state.order.finalPrice);
   const dispatch = useDispatch();
   const [voucherCode, setVoucherCode] = useState("");
   const [voucher, setVoucherInfo] = useState(null);
-  const [totalPrice, setTotalPriceCheckout] = useState(0);
-  const [finalPrice, setFinalPriceInfo] = useState(0);
   const [message, setMessage] = useState("");
-  // Check if there is a product passed from the product screen
-  const productFromRoute = route.params?.product;
+
   // Tính tổng giá trị đơn hàng
   useEffect(() => {
-    console.log(selectedItems);
-    // Kiểm tra xem productFromRoute có phải là một đối tượng và có giá trị hay không
-    const total = productFromRoute
-      ? productFromRoute.price * productFromRoute.quantity
-      : Array.isArray(selectedItems) && selectedItems.length > 0
-      ? selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
-      : 0;
-    setTotalPriceCheckout(total);
-    setFinalPriceInfo(total); // Tính giá trị cuối cùng sau khi giảm giá
-  }, [productFromRoute, selectedItems]); // Chỉ phụ thuộc vào selectedItems
+    const total =
+      Array.isArray(selectedItems) && selectedItems.length > 0
+        ? selectedItems.reduce(
+            (acc, item) => acc + item.price * item.quantity,
+            0
+          )
+        : 0;
 
-  const handlegetInfoFromVoucher = async () => {
+    dispatch(setTotalPrice(total)); // Cập nhật totalPrice trong Redux
+    dispatch(setFinalPrice(total)); // Cập nhật finalPrice trong Redux
+  }, [selectedItems, dispatch]);
+
+  const handleGetInfoFromVoucher = async () => {
     try {
       const voucherInfo = await getInfoFromVoucher(voucherCode);
       setVoucherInfo(voucherInfo); // Lưu voucherInfo vào state cục bộ
 
       const discountAmount = totalPrice * voucherInfo.discount; // Tính toán số tiền giảm giá
       setMessage(`Giảm được: $${discountAmount.toFixed(2)}`);
-      setFinalPriceInfo(totalPrice - discountAmount);
 
       // Cập nhật Redux
       dispatch(setVoucher(voucherInfo)); // Lưu voucher vào Redux
       dispatch(setFinalPrice(totalPrice - discountAmount)); // Cập nhật giá trị cuối cùng
-      return true;
     } catch (error) {
       setMessage(error.message);
-      return true;
     }
   };
 
-  const handleNext = async () => {
-    if (!voucherCode || !handlegetInfoFromVoucher) {
+  const handleNext = () => {
+    if (!voucherCode) {
       dispatch(setVoucher(null));
     }
-    dispatch(setTotalPrice(totalPrice));
-    dispatch(setFinalPrice(finalPrice));
     navigation.navigate("PaymentMethod");
   };
 
@@ -81,21 +80,24 @@ const Screen07 = ({ route, navigation }) => {
       {/* Cart Items */}
       <ScrollView showsHorizontalScrollIndicator={false}>
         <View style={styles.cartItems}>
-          {(productFromRoute ? [productFromRoute] : selectedItems).map(
-            (item) => (
-              <View key={item.id} style={styles.cartItem}>
-                <Image source={item.img} style={styles.itemImage} />
-                <View style={styles.itemDetails}>
-                  <Text style={styles.itemName} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
-                  <Text style={styles.itemPrice}>${item.price}</Text>
-                </View>
-                <View style={styles.itemPriceContainer}>
-                  {/* <Icon name="edit" size={20} color="gray" /> */}
-                  <Text style={styles.itemQuantity}>{item.quantity}</Text>
-                </View>
+          {selectedItems.map((item) => (
+            <View key={item.id} style={styles.cartItem}>
+              <Image source={item.img} style={styles.itemImage} />
+              <View style={styles.itemDetails}>
+                <Text
+                  style={styles.itemName}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {item.name}
+                </Text>
+                <Text style={styles.itemPrice}>${item.price}</Text>
               </View>
-            )
-          )}
+              <View style={styles.itemPriceContainer}>
+                <Text style={styles.itemQuantity}>{item.quantity}</Text>
+              </View>
+            </View>
+          ))}
         </View>
 
         {/* Voucher and Total */}
@@ -110,7 +112,7 @@ const Screen07 = ({ route, navigation }) => {
           />
           <TouchableOpacity
             style={styles.applyButton}
-            onPress={handlegetInfoFromVoucher}
+            onPress={handleGetInfoFromVoucher}
           >
             <Text style={styles.applyButtonText}>Apply</Text>
           </TouchableOpacity>
@@ -179,9 +181,6 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 16,
     fontWeight: "bold",
-  },
-  itemDescription: {
-    color: "gray",
   },
   itemPrice: {
     fontSize: 16,
@@ -259,9 +258,9 @@ const styles = StyleSheet.create({
   },
   message: {
     color: "crimson",
-    fontWeight: 500,
+    fontWeight: "500",
     paddingBottom: 10,
   },
 });
 
-export default Screen07;
+export default Checkout;
