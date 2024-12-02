@@ -80,10 +80,15 @@ export const addToCartInService = async (userId, item) => {
     throw new Error(`Failed to add item to cart: ${error.message}`);
   }
 };
+
 export const removeFromCartInService = async (userId, firestoreId) => {
+  if (!firestoreId) {
+    throw new Error("firestoreId is required");
+  }
   const cartRef = doc(db, "Users", userId, "carts", firestoreId);
   try {
     await deleteDoc(cartRef);
+    console.log("Item removed from cart:", firestoreId);
   } catch (error) {
     console.error("Error removing item from cart:", error);
     throw new Error("Failed to remove item from cart");

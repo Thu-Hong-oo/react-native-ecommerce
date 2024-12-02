@@ -14,14 +14,14 @@ import { Icon } from "react-native-elements";
 import COLORS from "../components/Colors";
 import { useSelector, useDispatch } from "react-redux";
 import { getInfoFromVoucher } from "../services/orderServices";
-import { setVoucher, setFinalPrice } from "../redux/slices/orderSlice";
+import { setVoucher, setFinalPrice, setTotalPrice } from "../redux/slices/orderSlice";
 
 const Screen07 = ({ route, navigation }) => {
   const selectedItems = useSelector((state) => state.order.selectedItems);
   const dispatch = useDispatch();
   const [voucherCode, setVoucherCode] = useState("");
   const [voucher, setVoucherInfo] = useState(null);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPrice, setTotalPriceCheckout] = useState(0);
   const [finalPrice, setFinalPriceInfo] = useState(0);
   const [message, setMessage] = useState("");
   // Check if there is a product passed from the product screen
@@ -29,12 +29,13 @@ const Screen07 = ({ route, navigation }) => {
   // Tính tổng giá trị đơn hàng
   useEffect(() => {
     console.log(selectedItems);
-    const items = productFromRoute ? [productFromRoute] : selectedItems; // Use product if available
-    const total = selectedItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0
-    );
-    setTotalPrice(total);
+    // Kiểm tra xem productFromRoute có phải là một đối tượng và có giá trị hay không
+    const total = productFromRoute
+      ? productFromRoute.price * productFromRoute.quantity
+      : Array.isArray(selectedItems) && selectedItems.length > 0
+      ? selectedItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
+      : 0;
+    setTotalPriceCheckout(total);
     setFinalPriceInfo(total); // Tính giá trị cuối cùng sau khi giảm giá
   }, [productFromRoute, selectedItems]); // Chỉ phụ thuộc vào selectedItems
 
@@ -58,9 +59,10 @@ const Screen07 = ({ route, navigation }) => {
   };
 
   const handleNext = async () => {
-    if(!voucherCode || !handlegetInfoFromVoucher){
+    if (!voucherCode || !handlegetInfoFromVoucher) {
       dispatch(setVoucher(null));
     }
+    dispatch(setTotalPrice(totalPrice));
     dispatch(setFinalPrice(finalPrice));
     navigation.navigate("PaymentMethod");
   };
@@ -84,12 +86,11 @@ const Screen07 = ({ route, navigation }) => {
               <View key={item.id} style={styles.cartItem}>
                 <Image source={item.img} style={styles.itemImage} />
                 <View style={styles.itemDetails}>
-                  <Text style={styles.itemName}>{item.name}</Text>
-                  <Text style={styles.itemDescription}>Consequat ex eu</Text>
+                  <Text style={styles.itemName} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
                   <Text style={styles.itemPrice}>${item.price}</Text>
                 </View>
                 <View style={styles.itemPriceContainer}>
-                  <Icon name="edit" size={20} color="gray" />
+                  {/* <Icon name="edit" size={20} color="gray" /> */}
                   <Text style={styles.itemQuantity}>{item.quantity}</Text>
                 </View>
               </View>
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginRight: 15,
-    resizeMode:"contain"
+    resizeMode: "contain",
   },
   itemDetails: {
     flex: 1,

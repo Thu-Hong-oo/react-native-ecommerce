@@ -3,25 +3,32 @@ import { View, TouchableOpacity, StyleSheet } from "react-native";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import { Badge } from "react-native-elements";
 import { useSelector } from "react-redux";
-import COLORS from "./Colors";
+import { useNavigation } from "@react-navigation/native";
+import { selectTotalQuantityById } from "../redux/slices/cartSlice";
+import COLORS from "../components/Colors";
 
-export default function CartIcon({ navigation }) {
-  // Lấy số lượng sản phẩm trong giỏ hàng từ Redux store
-  const items = useSelector((state) => state.cart.items);
-  const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
+export default function CartIcon() {
+  const navigation = useNavigation(); // Sử dụng useNavigation hook
+  const totalQuantityById = useSelector(selectTotalQuantityById);
+
+  // Tính tổng số lượng tất cả sản phẩm trong giỏ hàng
+  const totalItemsInCart = Object.values(totalQuantityById || {}).reduce(
+    (acc, quantity) => acc + quantity,
+    0
+  );
 
   return (
     <View style={styles.iconContainer}>
-      {totalQuantity > 0 && (
+      {totalItemsInCart > 0 && (
         <Badge
-          value={totalQuantity > 99 ? "99+" : totalQuantity} // Hiển thị "99+" nếu số lượng lớn hơn 99
+          value={totalItemsInCart > 99 ? "99+" : totalItemsInCart} // Hiển thị "99+" nếu số lượng lớn hơn 99
           status="error"
           containerStyle={styles.badgeContainer}
         />
       )}
       <TouchableOpacity
         style={styles.iconSpacing}
-        onPress={() => navigation.navigate("Cart")}
+        onPress={() => navigation.navigate("Cart")} // Điều hướng đến màn hình Cart
       >
         <AntDesign name="shoppingcart" size={27} color={COLORS.primary} />
       </TouchableOpacity>

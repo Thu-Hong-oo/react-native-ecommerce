@@ -18,7 +18,7 @@ import {
   updateCartItemQuantity,
 } from "../redux/slices/cartSlice";
 import ModalMessage from "../components/ModalMeassage";
-import { setSelectedItems, setTotalPrice } from "../redux/slices/orderSlice"; 
+import { setSelectedItems, setTotalPrice } from "../redux/slices/orderSlice";
 
 const CartRender = ({
   item,
@@ -26,14 +26,16 @@ const CartRender = ({
   handleRemoveItem,
   handleCheckboxChange,
   isChecked,
+  onQuantityChange, // Thêm prop để truyền hàm cập nhật số lượng
 }) => {
   const [quantity, setQuantity] = useState(item.quantity || 1);
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleIncrease = () => {
     const newQuantity = quantity + 1;
-    setQuantity(newQuantity); // Update local state
-    handleUpdateQuantity(item.firestoreId, newQuantity); // Update quantity in Redux and Firestore
+    setQuantity(newQuantity);
+    handleUpdateQuantity(item.firestoreId, newQuantity);
+    onQuantityChange(item.firestoreId, newQuantity); // Cập nhật số lượng cho tổng tiền
   };
 
   const handleDecrease = () => {
@@ -41,6 +43,7 @@ const CartRender = ({
       const newQuantity = quantity - 1;
       setQuantity(newQuantity);
       handleUpdateQuantity(item.firestoreId, newQuantity);
+      onQuantityChange(item.firestoreId, newQuantity); // Cập nhật số lượng cho tổng tiền
     }
   };
 
@@ -54,13 +57,15 @@ const CartRender = ({
     setModalVisible(false);
   };
 
+  const totalPrice = (item.price * quantity).toFixed(2);
+
   return (
     <View style={styles.cartItem}>
       <View style={styles.cartItemLeft}>
         <CheckBox
           containerStyle={styles.checkbox}
           checked={isChecked}
-          onPress={() => handleCheckboxChange(item, !isChecked)} // Gọi hàm với toàn bộ item
+          onPress={() => handleCheckboxChange(item, !isChecked)}
         />
         <Image source={{ uri: item.img }} style={styles.image} />
         <View style={styles.itemDetails}>
@@ -86,7 +91,7 @@ const CartRender = ({
         </View>
       </View>
       <View style={styles.priceContainer}>
-        <Text style={styles.price}>${(item.price * quantity).toFixed(2)}</Text>
+        <Text style={styles.price}>${totalPrice}</Text>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <ModalMessage
             visible={modalVisible}
@@ -104,56 +109,54 @@ const CartRender = ({
     </View>
   );
 };
-
 export default function Cart({ navigation }) {
   const user = useSelector((state) => state.user.user);
-  const userId = user?.id; // Use optional chaining to safely access userId
-  const { items, totalPrice } = useSelector((state) => state.cart);
+  const userId = user?.id;
+  const { items } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const [selectedItems, setSelectedItemsState] = useState([]);
 
   useEffect(() => {
     if (userId) {
-      dispatch(fetchCartItems(userId)); // Fetch cart items when userId changes
+      dispatch(fetchCartItems(userId));
     }
   }, [dispatch, userId]);
 
   const handleUpdateQuantity = async (firestoreId, newQuantity) => {
     if (!userId) {
-        console.error("User  ID is not defined");
-        return;
+      console.error("User  ID is not defined");
+      return;
     }
     if (!firestoreId) {
-        console.error("Firestore ID is required");
-        return;
+      console.error("Firestore ID is required");
+      return;
     }
-
     console.log(
-        "Updating quantity for Firestore ID:",
-        firestoreId,
-        "to",
-        newQuantity
+      "Updating quantity for Firestore ID:",
+      firestoreId,
+      "to",
+      newQuantity
     );
 
     try {
-        await dispatch(
-            updateCartItemQuantity({ firestoreId, quantity: newQuantity, userId })
-        ).unwrap();
-        console.log("Quantity updated successfully");
+      await dispatch(
+        updateCartItemQuantity({ firestoreId, quantity: newQuantity, userId })
+      ).unwrap();
+      console.log("Quantity updated successfully");
 
-        // Cập nhật selectedItems với số lượng mới
-        setSelectedItemsState((prevState) => {
-            return prevState.map((item) => {
-                if (item.firestoreId === firestoreId) {
-                    return { ...item, quantity: newQuantity }; // Cập nhật số lượng
-                }
-                return item;
-            });
+      // Cập nhật selectedItems với số lượng mới
+      setSelectedItemsState((prevState) => {
+        return prevState.map((item) => {
+          if (item.firestoreId === firestoreId) {
+            return { ...item, quantity: newQuantity }; // Cập nhật số lượng
+          }
+          return item;
         });
+      });
     } catch (err) {
-        console.error("Failed to update quantity:", err);
+      console.error("Failed to update quantity:", err);
     }
-};
+  };
 
   const handleRemoveItem = (firestoreId) => {
     dispatch(removeFromCart({ userId, firestoreId }))
@@ -164,25 +167,38 @@ export default function Cart({ navigation }) {
 
   const handleCheckboxChange = (item, isChecked) => {
     if (isChecked) {
-      setSelectedItemsState((prevState) => [...prevState, item]); // Thêm sản phẩm vào danh sách đã chọn
+      // Kiểm tra xem sản phẩm đã có trong danh sách chọn chưa
+      setSelectedItemsState((prevState) => {
+        // Thêm sản phẩm nếu chưa có trong danh sách chọn
+        if (
+          !prevState.some(
+            (selectedItem) => selectedItem.firestoreId === item.firestoreId
+          )
+        ) {
+          return [...prevState, item];
+        }
+        return prevState;
+      });
     } else {
+      // Xóa sản phẩm khỏi danh sách chọn nếu bỏ chọn
       setSelectedItemsState((prevState) =>
-        prevState.filter((selectedItem) => selectedItem.id !== item.id)
-      ); // Xóa sản phẩm khỏi danh sách đã chọn
+        prevState.filter(
+          (selectedItem) => selectedItem.firestoreId !== item.firestoreId
+        )
+      );
     }
   };
 
   const handleProceedToCheckout = () => {
-    // Tính toán totalPrice cho các sản phẩm đã chọn
     const total = selectedItems.reduce((acc, item) => {
-        const itemPrice = item.price * item.quantity; // Sử dụng số lượng đã cập nhật
-        return acc + itemPrice; // Cộng dồn vào tổng
+      const itemPrice = item.price * item.quantity; // Sử dụng số lượng đã cập nhật
+      return acc + itemPrice; // Cộng dồn vào tổng
     }, 0);
 
     dispatch(setSelectedItems(selectedItems)); // Lưu các sản phẩm đã chọn vào orderSlice
     dispatch(setTotalPrice(total)); // Lưu totalPrice vào orderSlice
     navigation.navigate("Checkout"); // Chuyển hướng đến màn hình Checkout
-};
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -196,16 +212,16 @@ export default function Cart({ navigation }) {
 
       <FlatList
         data={items}
-        keyExtractor={(item) => item.firestoreId} // Use firestoreId as key
+        keyExtractor={(item) => item.firestoreId}
         renderItem={({ item }) => (
           <CartRender
             item={item}
             handleUpdateQuantity={handleUpdateQuantity}
             handleRemoveItem={handleRemoveItem}
-            handleCheckboxChange={handleCheckboxChange} // Pass the checkbox handler to CartRender
+            handleCheckboxChange={handleCheckboxChange}
             isChecked={selectedItems.some(
-              (selectedItem) => selectedItem.id === item.id
-            )} // Kiểm tra xem item có được chọn không
+              (selectedItem) => selectedItem.firestoreId === item.firestoreId
+            )}
           />
         )}
         contentContainerStyle={styles.cartList}
@@ -214,7 +230,13 @@ export default function Cart({ navigation }) {
       <View style={styles.summary}>
         <Text style={styles.summaryText}>Total:</Text>
         <Text style={styles.summaryPrice}>
-          ${totalPrice.toFixed(2)} {/* Use totalPrice from Redux */}
+          $
+          {items
+            .filter((item) =>
+              selectedItems.some((selectedItem) => selectedItem.id === item.id)
+            ) // Lọc các sản phẩm đã chọn
+            .reduce((acc, item) => acc + item.price * (item.quantity || 1), 0) // Tính tổng giá
+            .toFixed(2)}
         </Text>
       </View>
 

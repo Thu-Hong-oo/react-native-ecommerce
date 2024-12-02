@@ -18,6 +18,7 @@ import {
   saveProductToFavorites,
   deleteProductFromFavorites,
 } from "../redux/slices/favoriteSlice";
+import { useFocusEffect } from "@react-navigation/native";
 export default function Favorite() {
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [products, setProducts] = useState([]);
@@ -25,7 +26,7 @@ export default function Favorite() {
   const [searchQuery, setSearchQuery] = useState(""); // State cho tìm kiếm
 
   const dispatch = useDispatch();
-  useEffect(() => {
+  useFocusEffect(() => {
     const loadFavorites = async () => {
       const favorites = await fetchFavorites(); // Lấy danh sách ID sản phẩm yêu thích
 

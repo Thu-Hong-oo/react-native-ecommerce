@@ -33,22 +33,20 @@ export default function Search({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [lastSearches, setLastSearches] = useState([]);
-  const [suggestions, setSuggestions] = useState([]); // Gợi ý tên sản phẩm
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const productData = await getAllProducts();
-        setProducts(productData); // Cập nhật danh sách sản phẩm
-        console.log("data: ", productData); // Log dữ liệu sản phẩm
+        setProducts(productData);
       } catch (error) {
         console.error("Lỗi khi lấy sản phẩm: ", error);
       } finally {
-        setLoading(false); // Đặt loading thành false sau khi lấy dữ liệu
+        setLoading(false);
       }
     };
 
-    // Hàm tải lịch sử tìm kiếm
     const loadRecentSearches = async () => {
       const searches = await fetchRecentSearches();
       setLastSearches(searches);
@@ -58,7 +56,6 @@ export default function Search({ navigation }) {
     loadRecentSearches();
   }, []);
 
-  // Hàm lấy gợi ý sản phẩm
   const fetchProductSuggestions = async (queryText) => {
     if (queryText.trim() === "") {
       setSuggestions([]);
@@ -71,80 +68,45 @@ export default function Search({ navigation }) {
       orderBy("name"),
       startAt(queryText),
       endAt(queryText + "\uf8ff"),
-      limit(10) // Giới hạn số gợi ý
+      limit(10)
     );
 
     try {
       const querySnapshot = await getDocs(q);
       const productSuggestions = querySnapshot.docs.map(
         (doc) => doc.data().name
-      ); // Lấy tên sản phẩm
-      console.log("Product Suggestions: ", productSuggestions); // Log gợi ý
+      );
       setSuggestions(productSuggestions);
     } catch (error) {
       console.error("Lỗi khi lấy gợi ý sản phẩm: ", error);
     }
   };
 
-  // Hàm xử lý khi người dùng thay đổi ô tìm kiếm
   const handleSearchInputChange = (text) => {
     setSearchQuery(text);
-    fetchProductSuggestions(text); // Cập nhật gợi ý khi người dùng nhập từ khóa
+    fetchProductSuggestions(text);
   };
 
-  // Hàm xử lý khi người dùng nhấn tìm kiếm
   const handleSearch = async () => {
     if (searchQuery.trim() !== "") {
-      await saveSearch(searchQuery); // Lưu từ khóa tìm kiếm
+      await saveSearch(searchQuery);
       const filteredProducts = products.filter((product) =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setProducts(filteredProducts); // Cập nhật danh sách sản phẩm hiển thị
+      setProducts(filteredProducts);
       setSearchQuery("");
-      loadRecentSearches(); // Tải lại lịch sử tìm kiếm
-      setSuggestions([]); // Xóa gợi ý
+      loadRecentSearches();
+      setSuggestions([]);
     }
   };
 
-  // Hàm xóa tất cả lịch sử tìm kiếm
   const handleClearHistory = async () => {
     await clearSearchHistory();
-    setLastSearches([]); // Xóa hiển thị trong giao diện
+    setLastSearches([]);
   };
-
-  const popularSearches = [
-    {
-      name: "Lunilo Hilis jacket",
-      searches: "1.6k Search today",
-      label: "Hot",
-      labelColor: "#EF4444",
-      img: "https://plus.unsplash.com/premium_photo-1683121231638-4100d7f6deb2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8amFja2V0fGVufDB8fDB8fHww "},
-    {
-      name: "Denim Jeans",
-      searches: "1k Search today",
-      label: "New",
-      labelColor: "#F59E0B",
-      img: "https://m.media-amazon.com/images/I/91MZMCGta6S._AC_UL320_.jpg",
-    },
-    {
-      name: "Redil Backpack",
-      searches: "1.23k Search today",
-      label: "Popular",
-      labelColor: "#10B981",
-      img: "https://plus.unsplash.com/premium_photo-1723649902734-60ec42167731?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YmFja3BhY2t8ZW58MHx8MHx8fDA%3D",
-    },
-    {
-      name: "JBL Speakers",
-      searches: "1k Search today",
-      label: "New",
-      labelColor: "#F59E0B",
-      img: "https://m.media-amazon.com/images/I/61soDqkXGtL._AC_UL320_.jpg",
-    },
-  ];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Search Input */}
       <View style={styles.searchWrapper}>
         <Pressable onPress={() => navigation.goBack()}>
           <Icon
@@ -166,7 +128,7 @@ export default function Search({ navigation }) {
             placeholder="Search"
             style={styles.searchInput}
             value={searchQuery}
-            onChangeText={handleSearchInputChange} // Gọi hàm để cập nhật gợi ý
+            onChangeText={handleSearchInputChange}
             onSubmitEditing={handleSearch}
           />
         </View>
@@ -194,27 +156,29 @@ export default function Search({ navigation }) {
       )}
 
       {/* Last Search Section */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Last Search</Text>
-          <TouchableOpacity onPress={handleClearHistory}>
-            <Text style={styles.clearButton}>Clear All</Text>
-          </TouchableOpacity>
+      {lastSearches.length > 0 && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Last Search</Text>
+            <TouchableOpacity onPress={handleClearHistory}>
+              <Text style={styles.clearButton}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.tagsContainer}>
+            {lastSearches.map((tag, index) => (
+              <View style={styles.tag} key={index}>
+                <Text style={styles.tagText}>{tag}</Text>
+                <Icon
+                  name="times"
+                  size={12}
+                  color="#555"
+                  style={styles.tagIcon}
+                />
+              </View>
+            ))}
+          </View>
         </View>
-        <View style={styles.tagsContainer}>
-          {lastSearches.map((tag, index) => (
-            <View style={styles.tag} key={index}>
-              <Text style={styles.tagText}>{tag}</Text>
-              <Icon
-                name="times"
-                size={12}
-                color="#555"
-                style={styles.tagIcon}
-              />
-            </View>
-          ))}
-        </View>
-      </View>
+      )}
 
       {/* Popular Search Section */}
       <View style={styles.section}>
@@ -250,7 +214,7 @@ const styles = StyleSheet.create({
   suggestionItem: {
     paddingVertical: 10,
     borderBottomColor: "#E5E7EB",
- borderBottomWidth: 1,
+    borderBottomWidth: 1,
   },
   suggestionText: {
     fontSize: 16,

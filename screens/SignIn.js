@@ -20,11 +20,14 @@ import {
   getRedirectResult,
   signInWithPopup,
 } from "firebase/auth";
-import { fetchUserData } from "../services/firestoreServices";
+import ModalMessage from "../components/ModalMeassage";
+import { fetchUserData } from "../services/userServices";
 const SignIn = ({ navigation }) => {
   const dispatch = useDispatch(); // Khởi tạo dispatch
   const [email, setEmail] = useState("thuhong05022003@gmail.com");
   const [password, setPassword] = useState("password123");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const handleLogin = async () => {
     try {
@@ -33,7 +36,8 @@ const SignIn = ({ navigation }) => {
         email,
         password
       );
-      alert("Login successful!");
+      setModalMessage("Login successful!"); // Cập nhật thông điệp
+      setModalVisible(true); // Hiển thị modal
 
       // Lấy thông tin người dùng từ Firestore
       const userId = userCredential.user.uid;
@@ -53,7 +57,8 @@ const SignIn = ({ navigation }) => {
 
       navigation.navigate("Home"); // Chuyển sang trang Home
     } catch (error) {
-      alert(error.message);
+      setModalMessage("Incorrect password. Please try again."); // Cập nhật thông điệp lỗi
+      setModalVisible(true); // Hiển thị modal
     }
   };
 
@@ -99,7 +104,10 @@ const SignIn = ({ navigation }) => {
               })
             );
 
-            alert("Login successful!");
+            setModalMessage("Login successful!"); // Cập nhật thông điệp
+            setModalVisible(true); // Hiển thị modal
+            // Đặt singleButton thành true để chỉ hiển thị nút OK
+
             navigation.navigate("Home");
           }
         })
@@ -119,7 +127,7 @@ const SignIn = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <FontAwesome name="user" style={styles.icon} />
           <TextInput
-            placeholder="Username or Email"
+            placeholder="Email"
             style={styles.input}
             placeholderTextColor="#7a7a7a"
             value={email}
@@ -177,6 +185,18 @@ const SignIn = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+      {/* ModalMessage for login feedback */}
+      <ModalMessage
+        visible={modalVisible}
+        message={modalMessage}
+        onConfirm={() => {
+          setModalVisible(false); // Đóng modal
+          setEmail(""); // Đặt lại email
+          setPassword(""); // Đặt lại mật khẩu
+        }}
+        onCancel={() => setModalVisible(false)}
+        singleButton={modalMessage === "Login successful!"} // Chỉ hiển thị nút OK khi đăng nhập thành công
+      />
     </View>
   );
 };

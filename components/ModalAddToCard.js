@@ -71,22 +71,32 @@ export default function CartModal({ visible, onClose, buttonType }) {
       console.error("Failed to add item to Firestore:", error);
     }
   };
-  const handleBuyNow =() => {
-    const id = selectedProduct.id;
-    const product = {
-      id,
-      name: selectedProduct.name,
-      price: selectedProduct.price,
-      quantity: quantity,
-      option: selectedOption,
-      size: selectedSize,
-      img: currentImage,
+  const handleBuyNow = async () => {
+    // Giả sử bạn có một hàm bất đồng bộ để lấy dữ liệu
+    console.log("selectedProduct",selectedProduct);
+    const fetchData = async () => {
+        // Thực hiện một số thao tác bất đồng bộ nếu cần
+        // Ví dụ: const data = await someAsyncFunction();
+        return {
+            id: selectedProduct.id,
+            name: selectedProduct.name,
+            price: selectedProduct.price,
+            quantity: quantity,
+            option: selectedOption,
+            size: selectedSize,
+            img: currentImage,
+        };
     };
+
+    // Gọi hàm fetchData và chờ cho nó hoàn thành
+    const product = await fetchData();
+
     console.log("product",product);
+
     // Navigate to Checkout screen with product data
     navigation.navigate("Checkout", { product });
     onClose();
-  };
+};
 
   const handleDecreaseQuantity = () => {
     if (quantity > 1) {

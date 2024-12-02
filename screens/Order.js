@@ -97,7 +97,7 @@ export default function Order({ navigation }) {
               </View>
               <View style={styles.priceInfo}>
                 {item.totalPrice !== item.finalPrice && (
-                  <Text style={styles.originalPrice}>₫{item.totalPrice}</Text>
+                  <Text style={styles.originalPrice}>${item.totalPrice}</Text>
                 )}
 
                 <Text style={styles.finalPrice}>${item.finalPrice}</Text>
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   buttonText: {
-    color: "#333",
+    color: "white",
     fontSize: 14,
   },
   orderBody: {
@@ -219,13 +219,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   reorderButton: {
-    backgroundColor: "#ff5722",
+    backgroundColor: COLORS.primary,
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
   },
   contactButton: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: COLORS.primary,
     borderRadius: 5,
     padding: 10,
   },

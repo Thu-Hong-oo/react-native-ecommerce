@@ -16,22 +16,36 @@ import { Icon } from "react-native-elements";
 import { RadioButton } from "react-native-paper";
 import { useSelector, useDispatch } from "react-redux";
 import { createOrder } from "../services/orderServices";
-import { setPaymentMethod } from "../redux/slices/orderSlice";
+import {
+  setPaymentMethod,
+  removePurchasedItems,
+  setTotalPrice,
+} from "../redux/slices/orderSlice";
+import COLORS from "../components/Colors";
 
+import { removeFromCartInService } from "../services/cartServices";
 export default function Screen08({ navigation }) {
   const [checked, setChecked] = React.useState("first");
   const dispatch = useDispatch();
+
   const finalPrice = useSelector((state) => state.order.finalPrice);
   const selectedItems = useSelector((state) => state.order.selectedItems);
+  console.log("selectedItems:", selectedItems);
   const totalPrice = useSelector((state) => state.order.totalPrice);
   const voucher = useSelector((state) => state.order.voucher);
-  const user = useSelector((state) => state.user.user); // Lấy thông tin người dùng
-
+  const user = useSelector((state) => state.user.user);
+  console.log("User:", user);
+  const userId = user.id;
+  const removeProductId = selectedItems.map((item) => item.id);
+  const firestoreId = selectedItems.map((item) => item.firestoreId);
+  console.log("Selected Items:", selectedItems);
+  console.log("Firestore IDs to be removed:", firestoreId);
+  console.log("removeProductId:", removeProductId);
   const handleOrder = async () => {
     const paymentMethod =
       checked === "first" ? "Thanh toán khi nhận hàng" : "Chuyển khoản";
     dispatch(setPaymentMethod(paymentMethod));
-  
+
     try {
       // Chỉ truyền voucher vào createOrder nếu nó hợp lệ
       const orderId = await createOrder(
@@ -42,11 +56,25 @@ export default function Screen08({ navigation }) {
         finalPrice,
         paymentMethod
       );
-      console.log("Order created with ID:", orderId);
+      console.log("Order created with ID:", orderId); // Lấy các ID sản phẩm đã thanh toán (lấy từ selectedItems)
+      // Lặp qua mảng firestoreId và xóa từng sản phẩm trong Firestore
+      for (let i = 0; i < firestoreId.length; i++) {
+        try {
+          await removeFromCartInService(userId, firestoreId[i]); // Xóa từng sản phẩm khỏi Firestore
+          console.log("Đã xóa sản phẩm khỏi Firestore:", firestoreId[i]);
+        } catch (error) {
+          console.error("Lỗi khi xóa sản phẩm khỏi Firestore:", error.message);
+        }
+      }
+
+      // Dispatch hành động để xóa các sản phẩm đã thanh toán khỏi Redux state
+      
+      // Truyền mảng firestoreId
       navigation.navigate("OrderSucess");
-  
+      // dispatch(removePurchasedItems(firestoreId)); 
+
     } catch (error) {
-      console.error("Error creating order:", error);
+      console.error("Lỗi khi tạo đơn hàng:", error.message);
     }
   };
 
@@ -90,7 +118,7 @@ export default function Screen08({ navigation }) {
                   value="first"
                   status={checked === "first" ? "checked" : "unchecked"}
                   onPress={() => setChecked("first")}
-                  color="#E73E00"
+                  color={COLORS.primary}
                 />
               </View>
               <View style={styles.paymentMethodEach}>
@@ -107,7 +135,7 @@ export default function Screen08({ navigation }) {
                   value="second"
                   status={checked === "second" ? "checked" : "unchecked"}
                   onPress={() => setChecked("second")}
-                  color="#E73E00"
+                  color={COLORS.primary}
                 />
               </View>
             </View>
@@ -185,7 +213,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   buttonPaynow: {
-    backgroundColor: "#FF6026",
+    backgroundColor: COLORS.primary,
     flexDirection: "row",
     justifyContent: "center",
     borderRadius: 6,

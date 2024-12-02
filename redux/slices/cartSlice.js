@@ -5,6 +5,7 @@ import {
   removeFromCartInService,
   updateCartItemQuantityInService,
 } from "../../services/cartServices";
+import { createSelector } from "reselect";
 
 // Fetch Cart Items
 export const fetchCartItems = createAsyncThunk(
@@ -19,15 +20,51 @@ export const fetchCartItems = createAsyncThunk(
   }
 );
 
+// Selector để lấy danh sách sản phẩm từ state
+export const selectCartItems = (state) => state.cart.items;
+
+// Tính tổng số lượng sản phẩm theo sự kết hợp của id, size, và option
+export const selectTotalQuantityById = createSelector(
+  [selectCartItems],
+  (cartItems) => {
+    const quantitiesById = {};
+
+    cartItems.forEach((item) => {
+      const { id, size, option, quantity } = item;
+
+      // Xử lý size và option nếu có
+      const sizeName = size || "default"; // Nếu size là null, sử dụng 'default'
+      const optionName = option || "default"; // Nếu option là null, sử dụng 'default'
+
+      // Tạo key duy nhất cho sự kết hợp id, size, và option
+      const key = `${id}-${sizeName}-${optionName}`;
+
+      // Debugging: In key và số lượng
+      console.log("Generated Key:", key);
+      console.log("Item Quantity:", quantity);
+
+      // Cộng dồn số lượng cho mỗi sự kết hợp của key
+      if (!quantitiesById[key]) {
+        quantitiesById[key] = 0; // Nếu chưa có key, khởi tạo số lượng là 0
+      }
+
+      quantitiesById[key] = 1;
+    });
+
+    return quantitiesById; // Trả về đối tượng có key và tổng số lượng của từng sự kết hợp
+  }
+);
+
 // Add Item to Cart
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ userId, item }, { rejectWithValue }) => {
     try {
-      return await addToCartInService(userId, item);
+      const response = await addToCartInService(userId, item); // Assuming this is your service call
+      return response; // Success
     } catch (error) {
-      console.error("Error adding item to cart:", error);
-      return rejectWithValue(error.message);
+      // Reject with custom error message
+      return rejectWithValue(error.message || "Failed to add item to cart");
     }
   }
 );
@@ -79,6 +116,7 @@ const cartSlice = createSlice({
       );
     },
   },
+
   extraReducers: (builder) => {
     builder
       // Fetch Cart Items
@@ -107,39 +145,20 @@ const cartSlice = createSlice({
         state.status = "succeeded";
 
         const existingItemIndex = state.items.findIndex(
-          (item) => item.firestoreId === action.payload.firestoreId
+          (item) =>
+            item.firestoreId === action.payload.firestoreId &&
+            item.option === action.payload.option // Kiểm tra option
         );
 
         if (existingItemIndex !== -1) {
-          // Nếu sản phẩm đã tồn tại, cập nhật số lượng
-          state.items[existingItemIndex].quantity = action.payload.quantity;
+          // Nếu sản phẩm đã tồn tại với cùng firestoreId và option, cập nhật số lượng
+          state.items[existingItemIndex].quantity += action.payload.quantity; // Cộng dồn số lượng
         } else {
           // Nếu sản phẩm chưa tồn tại, thêm mới
           state.items.push(action.payload);
         }
 
         // Tính toán lại tổng giá trị sau khi thêm sản phẩm
-        state.totalPrice = state.items.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
-        );
-      })
-      .addCase(addToCart.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
-      })
-
-      // Remove Item from Cart
-      .addCase(removeFromCart.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(removeFromCart.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        // Sử dụng firestoreId để so sánh
-        state.items = state.items.filter(
-          (item) => item.firestoreId !== action.payload
-        );
-        // Tính toán lại tổng giá trị sau khi xóa sản phẩm
         state.totalPrice = state.items.reduce(
           (total, item) => total + item.price * item.quantity,
           0
